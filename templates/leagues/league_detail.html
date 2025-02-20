@@ -325,13 +325,7 @@
                 <span class="font-medium">{{ team.players.0 }} / {{ team.players.1 }}</span>
               </div>
               <div class="flex items-center">
-                <span class="px-2 py-1 {% if team.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
-                  {% if team.losses == 0 %}
-                    Imbattuti ({{ team.wins }} {% if team.wins == 1 %}vittoria{% else %}vittorie{% endif %})
-                  {% else %}
-                    {{ team.losses }} {% if team.losses == 1 %}sconfitta{% else %}sconfitte{% endif %}
-                  {% endif %}
-                </span>
+                Work In Progress
               </div>
             </div>
           {% empty %}
