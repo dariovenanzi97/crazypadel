@@ -47,17 +47,20 @@
   </div>
 
   <!-- Tabs navigation -->
-  <!-- Tabs navigation -->
-<div class="mb-6 flex border-b border-gray-200">
-  <button id="tab-standings" class="tab-btn tab-active px-6 py-2 font-medium border-b-2 border-crazy-blue flex items-center">
+  <div class="mb-6 flex border-b border-gray-200">
+    <button id="tab-standings" class="tab-btn tab-active px-6 py-2 font-medium border-b-2 border-crazy-blue flex items-center">
     <img src="/static/img/trophy.png" alt="Standings" class="h-5 w-5 mr-2">
     <span>Classifica</span>
-  </button>
-  <button id="tab-matches" class="tab-btn px-6 py-2 font-medium border-b-2 border-transparent flex items-center">
+    </button>
+    <button id="tab-matches" class="tab-btn px-6 py-2 font-medium border-b-2 border-transparent flex items-center">
     <img src="/static/img/padel.png" alt="Matches" class="h-5 w-5 mr-2">
     <span>Partite</span>
-  </button>
-</div>
+    </button>
+    <button id="tab-stats" class="tab-btn px-6 py-2 font-medium border-b-2 border-transparent flex items-center">
+    <img src="/static/img/glasses.png" alt="Stats" class="h-5 w-5 mr-2">
+    <span>Statistiche</span>
+    </button>
+   </div>
 
   <!-- TAB 1: STANDINGS -->
   <div id="content-standings" class="tab-content">
@@ -73,15 +76,15 @@
       <div class="overflow-x-auto">
         <table class="min-w-full">
           <thead>
-            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-              <th class="py-3 px-4 text-left">Pos.</th>
-              <th class="py-3 px-4 text-left">Giocatore</th>
-              <th class="py-3 px-4 text-center">Partite</th>
-              <th class="py-3 px-4 text-center">Vittorie</th>
-              <th class="py-3 px-4 text-center">Sconfitte</th>
-              <th class="py-3 px-4 text-center">Set vinti</th>
-              <th class="py-3 px-4 text-center font-bold">Punti</th>
-            </tr>
+            <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
+              <th class="py-2 px-2 text-left">#</th>
+              <th class="py-2 px-3 text-left">Giocatore</th>
+              <th class="py-2 px-2 text-center font-bold" title="Punti">PT</th>
+              <th class="py-2 px-2 text-center" title="Partite">PG</th>
+              <th class="py-2 px-2 text-center" title="Vittorie">V</th>
+              <th class="py-2 px-2 text-center" title="Sconfitte">S</th>
+              <th class="py-2 px-2 text-center" title="Set vinti">SV</th>
+              </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             {% for player_stats in standings %}
@@ -98,14 +101,13 @@
                 {% endif %}
               </td>
               <td class="py-3 px-4 font-medium {% if player_stats.player == user %}text-crazy-blue{% endif %}">
-                {{ player_stats.player.username }}
-                
+                {{ player_stats.player.username }}  
               </td>
+              <td class="py-3 px-4 text-center font-bold text-lg">{{ player_stats.points }}</td>
               <td class="py-3 px-4 text-center">{{ player_stats.matches_played }}</td>
               <td class="py-3 px-4 text-center text-green-600 font-medium">{{ player_stats.wins }}</td>
               <td class="py-3 px-4 text-center text-red-600">{{ player_stats.losses }}</td>
               <td class="py-3 px-4 text-center">{{ player_stats.sets_won }}</td>
-              <td class="py-3 px-4 text-center font-bold text-lg">{{ player_stats.points }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -264,6 +266,177 @@
     </div>
     {% endif %}
   </div>
+
+  <!-- TAB 3: STATS -->
+<div id="content-stats" class="tab-content hidden">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- L'Imbattibile -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="p-4 bg-gray-50 border-b">
+        <h3 class="font-semibold text-lg flex items-center">
+          <span class="mr-2">🏆</span>
+          L'Imbattibile
+        </h3>
+        <p class="text-xs text-gray-500 mt-1">Giocatori imbattuti o meno battuti</p>
+      </div>
+      <div class="p-4">
+        <div class="divide-y divide-gray-100">
+          {% for player in unbeatable_players %}
+            <div class="py-3 flex items-center justify-between">
+              <div class="flex items-center">
+                <span class="mr-3 font-semibold text-sm">{{ forloop.counter }}</span>
+                <span class="font-medium">{{ player.player.username }}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="px-2 py-1 {% if player.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
+                  {% if player.losses == 0 %}
+                    Imbattuto
+                  {% else %}
+                    {{ player.losses }} {% if player.losses == 1 %}sconfitta{% else %}sconfitte{% endif %}
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="py-4 text-center text-gray-500">
+              Dati insufficienti
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Gli Imbattibili -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="p-4 bg-gray-50 border-b">
+        <h3 class="font-semibold text-lg flex items-center">
+          <span class="mr-2">👥</span>
+          Double Trouble
+        </h3>
+        <p class="text-xs text-gray-500 mt-1">Coppie imbattute o con meno sconfitte</p>
+      </div>
+      <div class="p-4">
+        <div class="divide-y divide-gray-100">
+          {% for team in unbeatable_teams %}
+            <div class="py-3 flex items-center justify-between">
+              <div class="flex-1">
+                <span class="mr-2 font-semibold text-sm">{{ forloop.counter }}</span>
+                <span class="font-medium">{{ team.players.0 }} / {{ team.players.1 }}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="px-2 py-1 {% if team.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
+                  {% if team.losses == 0 %}
+                    Imbattuti ({{ team.wins }} v.)
+                  {% else %}
+                    {{ team.losses }} {% if team.losses == 1 %}sconfitta{% else %}sconfitte{% endif %}
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="py-4 text-center text-gray-500">
+              Dati insufficienti
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- In Forma -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="p-4 bg-gray-50 border-b">
+        <h3 class="font-semibold text-lg flex items-center">
+          <span class="mr-2">🔥</span>
+          On Fire
+        </h3>
+        <p class="text-xs text-gray-500 mt-1">Giocatori con la serie positiva più lunga</p>
+      </div>
+      <div class="p-4">
+        <div class="divide-y divide-gray-100">
+          {% for player_data in in_form_players %}
+            {% if player_data.streak > 0 %}
+            <div class="py-3 flex items-center justify-between">
+              <div class="flex items-center">
+                <span class="mr-3 font-semibold text-sm">{{ forloop.counter }}</span>
+                <span class="font-medium">{{ player_data.player.username }}</span>
+              </div>
+              <div class="flex items-center">
+                <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
+                  {{ player_data.streak }} vittorie consecutive
+                </span>
+              </div>
+            </div>
+            {% endif %}
+          {% empty %}
+            <div class="py-4 text-center text-gray-500">
+              Dati insufficienti
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sparito -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div class="p-4 bg-gray-50 border-b">
+    <h3 class="font-semibold text-lg flex items-center">
+      <span class="mr-2">👻</span>
+      Spariti
+    </h3>
+    <p class="text-xs text-gray-500 mt-1">Giocatori con il minor numero di partite</p>
+  </div>
+  <div class="p-4">
+    <div class="divide-y divide-gray-100">
+      {% for player_data in missing_players %}
+        <div class="py-3 flex items-center justify-between">
+          <div class="flex items-center">
+            <span class="mr-3 font-semibold text-sm">{{ forloop.counter }}</span>
+            <span class="font-medium">{{ player_data.player.username }}</span>
+          </div>
+          <div class="flex items-center">
+            <span class="px-2 py-1 bg-gray-100 rounded text-sm">
+              {{ player_data.matches_count }} {% if player_data.matches_count == 1 %}partita{% else %}partite{% endif %}
+            </span>
+          </div>
+        </div>
+      {% empty %}
+        <div class="py-4 text-center text-gray-500">
+          Dati insufficienti
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+    
+    <!-- Sempre sul pezzo -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden lg:col-span-2">
+      <div class="p-4 bg-gray-50 border-b">
+        <h3 class="font-semibold text-lg flex items-center">
+          <span class="mr-2">⚡</span>
+          Sempre presente
+        </h3>
+        <p class="text-xs text-gray-500 mt-1">Giocatori con il maggior numero di partite</p>
+      </div>
+      <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {% for player in most_active_players|slice:":3" %}
+            {% if player.matches_played > 0 %}
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+              <div class="text-xl font-semibold mb-1">{{ player.player.username }}</div>
+              <div class="text-3xl font-bold text-crazy-blue mb-1">{{ player.matches_played }}</div>
+              <div class="text-sm text-gray-500">partite giocate</div>
+            </div>
+            {% endif %}
+          {% empty %}
+            <div class="py-4 text-center text-gray-500 col-span-3">
+              Dati insufficienti
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </div>
 {% endblock %}

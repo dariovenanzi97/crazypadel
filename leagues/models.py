@@ -98,9 +98,9 @@ class League(models.Model):
                 'points': points
             })
         
-        # Ordina per punti, vittorie, set vinti
+        # Ordina per punti, quindi premia chi ha giocato meno partite (rateo più alto), quindi vittorie, set vinti
         standings.sort(
-            key=lambda x: (x['points'], x['wins'], x['sets_won']),
+            key=lambda x: (x['points'], -x['matches_played'], x['wins'], x['sets_won']),
             reverse=True
         )
         

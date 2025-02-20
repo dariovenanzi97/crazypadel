@@ -103,6 +103,9 @@ def profile(request):
     win_percentage = int((wins_count / total_matches) * 100) if total_matches > 0 else 0
     avg_sets_per_match = round(total_sets / total_matches, 1) if total_matches > 0 else 0
     
+    # Calcola percentuale set vinti
+    set_win_percentage = int((sets_won / total_sets) * 100) if total_sets > 0 else 0
+    
     # Trova compagno preferito
     favorite_partner = None
     partner_stats = None
@@ -126,6 +129,25 @@ def profile(request):
             'losses': worst_opponent_id[1]['losses'],
             'loss_rate': int((worst_opponent_id[1]['losses'] / worst_opponent_id[1]['matches']) * 100) if worst_opponent_id[1]['matches'] > 0 else 0
         }
+
+    # Trova la vittima preferita (avversario contro cui si vince di più)
+    favorite_victim = None
+    victim_stats = None
+    if opponents:
+        # Per ogni avversario, calcola le vittorie (cioè le partite - le sconfitte)
+        for opp_id, stats in opponents.items():
+            wins_against = stats['matches'] - stats['losses']
+            stats['wins_against'] = wins_against
+            
+        # Trova l'avversario con più vittorie
+        best_victim_id = max(opponents.items(), key=lambda x: x[1]['wins_against'])
+        if best_victim_id[1]['wins_against'] > 0:  # Solo se c'è almeno una vittoria
+            favorite_victim = best_victim_id[1]['player']
+            victim_stats = {
+                'matches': best_victim_id[1]['matches'],
+                'wins_against': best_victim_id[1]['wins_against'],
+                'win_rate': int((best_victim_id[1]['wins_against'] / best_victim_id[1]['matches']) * 100) if best_victim_id[1]['matches'] > 0 else 0
+            }
     
     # Esempio di dati per trend di performance
     performance_trend = None
@@ -154,11 +176,11 @@ def profile(request):
     
     # Recupera le partite recenti
     recent_matches = []
+    # Recupera tutte le partite
     if total_matches > 0:
-        # Otteniamo le partite, non i MatchPlayer
         match_ids = user_matches.values_list('match_id', flat=True)
         from leagues.models import Match
-        recent_matches = Match.objects.filter(id__in=match_ids).order_by('-match_date')[:5]
+        recent_matches = Match.objects.filter(id__in=match_ids).order_by('-match_date')  # Rimuovi [:5]
 
     # Calcola striscia di vittorie consecutive
     winning_streak = 0
@@ -183,6 +205,7 @@ def profile(request):
         'total_wins': wins_count,
         'total_losses': losses_count,
         'win_percentage': win_percentage,
+        'set_win_percentage': set_win_percentage,
         'total_sets': total_sets,
         'sets_won': sets_won,
         'avg_sets_per_match': avg_sets_per_match,
@@ -193,6 +216,8 @@ def profile(request):
         'performance_trend': performance_trend,
         'recent_matches': recent_matches,
         'winning_streak': winning_streak,
+        'favorite_victim': favorite_victim,
+        'victim_stats': victim_stats,
     }
     
     return render(request, 'accounts/profile.html', context)
