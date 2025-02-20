@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Elimina Partita - {{ league.name }} - CrazyPadel{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="navbar-gradient p-6">
+                <div class="flex items-center justify-center">
+                  <img src="/static/img/padel.png" alt="Padel" class="h-8 w-8 mr-3">
+                  <h1 class="game-font text-white text-2xl md:text-3xl">ELIMINA PARTITA</h1>
+                </div>
+                <h2 class="text-white text-center text-lg mt-2">{{ league.name }}</h2>
+              </div>
+            <div class="p-4 bg-gray-50 flex justify-between items-center">
+                <a href="{% url 'leagues:match_detail' league.id match.id %}" class="text-crazy-blue hover:underline flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Torna ai dettagli
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-4 bg-red-50 border-b border-red-100">
+            <h2 class="font-medium text-red-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Conferma eliminazione
+            </h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="bg-red-50 rounded-lg p-4 border border-red-100 mb-6">
+                <p class="text-red-800 font-medium">Stai per eliminare definitivamente questa partita.</p>
+                <p class="text-red-700 mt-2">Questa azione non può essere annullata e modificherà la classifica della lega.</p>
+            </div>
+            
+            <!-- Match Summary -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Riepilogo partita</h3>
+                
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                        <div class="mb-2 sm:mb-0">
+                            <span class="text-sm text-gray-500">Data:</span>
+                            <span class="ml-1 font-medium">{{ match.match_date|date:"d/m/Y" }}</span>
+                        </div>
+                        
+                        <div class="text-sm">
+                            <span class="font-semibold">Risultato:</span>
+                            <span class="font-bold ml-1">{{ match.team1_sets }}-{{ match.team2_sets }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Team 1 -->
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Squadra 1:</div>
+                            <div>
+                                {% with team1_players=match.players.filter team=1 %}
+                                    {% for player in team1_players %}
+                                        <span class="font-medium">{{ player.player.username }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        
+                        <!-- Team 2 -->
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Squadra 2:</div>
+                            <div>
+                                {% with team2_players=match.players.filter team=2 %}
+                                    {% for player in team2_players %}
+                                        <span class="font-medium">{{ player.player.username }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Confirmation Form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="flex items-center mb-6">
+                    <input id="confirm-delete" name="confirm_delete" type="checkbox" required
+                           class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                    <label for="confirm-delete" class="ml-2 block text-sm text-gray-900">
+                        Confermo di voler eliminare definitivamente questa partita
+                    </label>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'leagues:match_detail' league.id match.id %}" 
+                       class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                        Annulla
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                        Elimina Partita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Impact Warning -->
+    <div class="mt-6 bg-yellow-50 rounded-xl shadow-md overflow-hidden border border-yellow-100">
+        <div class="p-4 bg-yellow-100 border-b">
+            <h2 class="font-medium text-yellow-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Impatto sulla classifica
+            </h2>
+        </div>
+        
+        <div class="p-6 text-sm text-yellow-800">
+            <p class="mb-2">L'eliminazione di questa partita:</p>
+            <ul class="list-disc pl-5 space-y-1">
+                <li>Rimuoverà i punti associati a questa partita dalla classifica</li>
+                <li>Eliminerà tutti i dati relativi a questa partita in modo permanente</li>
+                <li>Aggiornerà immediatamente le posizioni nella classifica della lega</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

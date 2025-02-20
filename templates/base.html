@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CrazyPadel{% endblock %}</title>
+    <link rel="icon" type="image/png" href="/static/img/logo2.png">
+    
+    <!-- Tailwind & Flowbite -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    
+    <!-- Font Bungee -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+
+    <!-- Lottie Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    
+    <style>
+        :root {
+            --crazy-blue: #255FAC;
+            --crazy-yellow: #D9E13D;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .game-font {
+            font-family: 'Bungee', cursive;
+        }
+        
+        .btn-primary {
+            background-color: var(--crazy-blue);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0055dd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background-color: var(--crazy-yellow);
+            color: black;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f0df00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-gradient {
+            background: linear-gradient(90deg, var(--crazy-blue), var(--crazy-yellow));
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'crazy-blue': 'var(--crazy-blue)',
+                        'crazy-yellow': 'var(--crazy-yellow)',
+                    },
+                    fontFamily: {
+                        'game': ['"Bungeesto"', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="flex flex-col h-full bg-gray-50">
+    <!-- Navbar migliorata -->
+<nav class="navbar-gradient shadow-lg sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center py-3">
+            <div class="flex items-center space-x-1">
+                <a href="{% url 'leagues:list' %}" class="flex items-center group">
+                        <img src="/static/img/logo2.png" alt="CrazyPadel" class="h-8 w-auto">
+                    <span class="game-font text-white text-xl ml-2 group-hover:text-crazy-yellow transition-colors duration-300">CrazyPadel</span>
+                </a>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-1">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'leagues:list' %}" class="flex items-center space-x-1 text-white bg-white/10 hover:bg-white/20 py-2 px-3 rounded-lg transition-all duration-300">
+                     
+                        <span>Leghe</span>
+                    </a>
+                    
+                    <a href="{% url 'leagues:join_by_code' %}" class="flex items-center space-x-1 text-white bg-white/10 hover:bg-white/20 py-2 px-3 rounded-lg transition-all duration-300">
+                        
+                        <span>Unisciti</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-1 text-white bg-white/10 hover:bg-white/20 py-2 px-3 rounded-lg transition-all duration-300">
+                        
+                        <span>Profilo</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center space-x-1 bg-white text-crazy-blue py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-md hover:shadow-lg ml-2">
+                        
+                        <span class="font-medium">Logout</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="flex items-center space-x-1 text-white bg-white/10 hover:bg-white/20 py-2 px-3 rounded-lg transition-all duration-300">
+                        
+                        <span>Accedi</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:register' %}" class="flex items-center space-x-1 bg-white text-crazy-blue py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-md hover:shadow-lg ml-2">
+                        
+                        <span class="font-medium">Registrati</span>
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Menu mobile migliorato -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-white bg-white/10 p-2 rounded-lg focus:outline-none hover:bg-white/20 transition-colors duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu mobile dropdown migliorato -->
+        <div id="mobile-menu" class="md:hidden hidden pb-3 rounded-b-lg">
+            <div class="flex flex-col space-y-2 pt-2 border-t border-white/20">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'leagues:list' %}" class="flex items-center space-x-3 text-white hover:bg-white/10 py-2 px-3 rounded-lg transition">
+                        <span>Leghe</span>
+                    </a>
+                    
+                    <a href="{% url 'leagues:join_by_code' %}" class="flex items-center space-x-3 text-white hover:bg-white/10 py-2 px-3 rounded-lg transition">
+                        <span>Unisciti</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-3 text-white hover:bg-white/10 py-2 px-3 rounded-lg transition">
+                        <span>Profilo</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center space-x-3 bg-white text-crazy-blue py-2 px-4 rounded-lg transition mt-2 mx-1">
+                        <span class="font-medium">Logout</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="flex items-center space-x-3 text-white hover:bg-white/10 py-2 px-3 rounded-lg transition">
+                      
+                        <span>Accedi</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:register' %}" class="flex items-center space-x-3 bg-white text-crazy-blue py-2 px-4 rounded-lg transition mt-2 mx-1">
+                        <span class="font-medium">Registrati</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for message in messages %}
+            <div id="alert-{{ forloop.counter }}" class="flex items-center p-4 mb-4 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %} rounded-lg" role="alert">
+                <div class="ml-3 text-sm font-medium">
+                    {{ message }}
+                </div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8 {% if message.tags == 'success' %}bg-green-100 text-green-500 focus:ring-green-400{% elif message.tags == 'error' %}bg-red-100 text-red-500 focus:ring-red-400{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-500 focus:ring-yellow-400{% else %}bg-blue-100 text-blue-500 focus:ring-blue-400{% endif %}" data-dismiss-target="#alert-{{ forloop.counter }}" aria-label="Close">
+                    <span class="sr-only">Chiudi</span>
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Content -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                  <div class="flex items-center justify-center md:justify-start">
+                    <img src="/static/img/logo2.png" alt="CrazyPadel" class="h-8 w-auto">
+                    <span class="game-font text-sm ml-2">CrazyPadel</span>
+                  </div>
+                  <p class="text-sm text-gray-400 mt-2">© 2025 CrazyPadel. Tutti i diritti riservati.</p>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-sm text-gray-400 mr-2">Developed by WizzLab</span>
+                  <img src="/static/img/wizz.png" alt="WizzLab" class="h-6 w-auto">
+                </div>
+              </div>
+        </div>
+    </footer>
+    
+    <!-- Loader overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[9999] flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-xl shadow-xl">
+          <div id="lottie-animation" style="height: 150px;"></div>
+          <p class="text-center text-gray-700 mt-4 font-medium">Caricamento in corso...</p>
+        </div>
+    </div>
+    
+    <!-- Flowbite JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Toggle mobile menu
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Inizializza l'animazione Lottie
+        let loadingAnimation;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadingAnimation = lottie.loadAnimation({
+                container: document.getElementById('lottie-animation'),
+                renderer: 'svg',
+                loop: true,
+                autoplay: false,
+                path: '/static/animations/tennisball.json' // Percorso al tuo file JSON tennisball
+            });
+            
+            // Funzioni globali per mostrare/nascondere il loader
+            window.showLoader = function() {
+                const overlay = document.getElementById('loading-overlay');
+                overlay.classList.remove('hidden');
+                loadingAnimation.play();
+            };
+            
+            window.hideLoader = function() {
+                const overlay = document.getElementById('loading-overlay');
+                overlay.classList.add('hidden');
+                loadingAnimation.stop();
+            };
+
+            // Aggiungi il loader a tutti i form
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    // Non mostrare il loader se ci sono errori di validazione
+                    if (this.checkValidity()) {
+                        window.showLoader();
+                    }
+                });
+            });
+
+            // Mostra loader durante i cambi di pagina
+            const links = document.querySelectorAll('a:not([target="_blank"]):not([download]):not([href^="#"]):not([href^="javascript:"])');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Ignora click con tasti modificatori o su link con attributi speciali
+                    if (e.metaKey || e.ctrlKey || this.getAttribute('data-no-loader') !== null) {
+                        return;
+                    }
+                    window.showLoader();
+                });
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Le Mie Leghe - CrazyPadel{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8 text-center">
+    <div class="flex items-center justify-center mb-2">
+      <img src="/static/img/trophy.png" alt="Trophy" class="h-10 w-10 mr-3">
+      <h1 class="game-font text-3xl text-gray-800">LE MIE LEGHE</h1>
+    </div>
+    <p class="text-gray-600">Gestisci le tue leghe di padel e sfida i tuoi amici!</p>
+  </div>
+  <!-- Action buttons -->
+  <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+    <a href="{% url 'leagues:create' %}" class="btn-primary px-6 py-3 rounded-lg text-center font-semibold flex-1 max-w-xs mx-auto sm:mx-0">
+      <i class="fas fa-plus-circle mr-2"></i> Crea nuova lega
+    </a>
+    <a href="{% url 'leagues:join_by_code' %}" class="btn-secondary px-6 py-3 rounded-lg text-center font-semibold flex-1 max-w-xs mx-auto sm:mx-0">
+      <i class="fas fa-sign-in-alt mr-2"></i> Unisciti con codice
+    </a>
+  </div>
+  {% if leagues %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for league in leagues %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+      <div class="navbar-gradient p-4">
+        <h3 class="game-font text-white text-center text-lg truncate">{{ league.name }}</h3>
+      </div>
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+            {{ league.players.count }} giocatori
+          </span>
+          {% if request.user == league.president %}
+          <span class="bg-crazy-yellow text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full">
+            Presidente
+          </span>
+          {% endif %}
+        </div>
+        <p class="text-gray-600 text-sm mb-6">
+          Creata il {{ league.created_at|date:"d/m/Y" }}
+        </p>
+        <div class="flex space-x-2">
+          <a href="{% url 'leagues:detail' league.id %}" class="flex-1 bg-crazy-blue text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+            Dettagli
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-xl shadow-md overflow-hidden p-8 text-center max-w-2xl mx-auto">
+    <h3 class="game-font text-2xl text-gray-800 mb-4">Nessuna lega trovata</h3>
+    <p class="text-gray-600 mb-8">Non sei ancora membro di nessuna lega. Crea la tua prima lega o unisciti a una lega esistente con un codice di invito.</p>
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <a href="{% url 'leagues:create' %}" class="btn-primary px-6 py-3 rounded-lg text-center font-semibold">
+        Crea nuova lega
+      </a>
+      <a href="{% url 'leagues:join_by_code' %}" class="btn-secondary px-6 py-3 rounded-lg text-center font-semibold">
+        Unisciti con codice
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

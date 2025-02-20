@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Crea Partita - {{ league.name }} - CrazyPadel{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="navbar-gradient p-6">
+                <div class="flex items-center justify-center">
+                  <img src="/static/img/padel.png" alt="Padel" class="h-8 w-8 mr-3">
+                  <h1 class="game-font text-white text-2xl md:text-3xl">NUOVA PARTITA</h1>
+                </div>
+                <h2 class="text-white text-center text-lg mt-2">{{ league.name }}</h2>
+              </div>
+        </div>
+    </div>
+    
+    <!-- Match Form -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b">
+            <h2 class="font-medium text-gray-700">Inserisci i dettagli della partita</h2>
+        </div>
+        
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Date Picker -->
+            <div class="mb-6">
+                <label for="{{ form.match_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Data della partita
+                </label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    {{ form.match_date }}
+                </div>
+                {% if form.match_date.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.match_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Teams Selection -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Formazione squadre</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Team 1 -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <h4 class="font-medium text-blue-800 mb-3">Squadra 1</h4>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="{{ form.team1_player1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Giocatore 1
+                                </label>
+                                {{ form.team1_player1 }}
+                                {% if form.team1_player1.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.team1_player1.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.team1_player2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Giocatore 2
+                                </label>
+                                {{ form.team1_player2 }}
+                                {% if form.team1_player2.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.team1_player2.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team 2 -->
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                        <h4 class="font-medium text-purple-800 mb-3">Squadra 2</h4>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="{{ form.team2_player1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Giocatore 1
+                                </label>
+                                {{ form.team2_player1 }}
+                                {% if form.team2_player1.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.team2_player1.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.team2_player2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Giocatore 2
+                                </label>
+                                {{ form.team2_player2 }}
+                                {% if form.team2_player2.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.team2_player2.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if form.non_field_errors %}
+                <div class="mt-4 rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Attenzione</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Match Results -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Risultato</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Team 1 Sets -->
+                    <div>
+                        <label for="{{ form.team1_sets.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Set vinti Squadra 1
+                        </label>
+                        {{ form.team1_sets }}
+                        {% if form.team1_sets.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.team1_sets.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Team 2 Sets -->
+                    <div>
+                        <label for="{{ form.team2_sets.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Set vinti Squadra 2
+                        </label>
+                        {{ form.team2_sets }}
+                        {% if form.team2_sets.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.team2_sets.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+                    Salva Partita
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Info Card -->
+    <div class="mt-6 bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b">
+            <h2 class="font-medium text-gray-700">Note</h2>
+        </div>
+        
+        <div class="p-6 text-sm text-gray-600">
+            <ul class="list-disc pl-5 space-y-2">
+                <li>Ogni giocatore può essere selezionato solo una volta.</li>
+                <li>I giocatori devono essere membri della lega.</li>
+                <li>Solo il presidente della lega può registrare e modificare partite.</li>
+                <li>I dati inseriti verranno utilizzati per aggiornare la classifica della lega.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Stile personalizzato per i select */
+    select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Stile per il datepicker */
+    input[type="date"] {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}

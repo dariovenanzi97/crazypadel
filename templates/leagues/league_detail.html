@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% block title %}{{ league.name }} - CrazyPadel{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <!-- Header -->
+  <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+    <div class="navbar-gradient p-6">
+      <div class="flex items-center justify-center">
+        <img src="/static/img/trophy.png" alt="Trophy" class="h-8 w-8 mr-3">
+        <h1 class="game-font text-white text-2xl md:text-3xl">{{ league.name }}</h1>
+      </div>
+    </div>
+    <div class="p-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <span class="text-sm text-gray-500">Presidente:</span>
+          <span class="ml-1 font-semibold">{{ league.president.username }}</span>
+          <div class="mt-2">
+            <span class="text-sm text-gray-500">Creata il:</span>
+            <span class="ml-1">{{ league.created_at|date:"d/m/Y" }}</span>
+          </div>
+          <div class="mt-2">
+            <span class="text-sm text-gray-500">Membri:</span>
+            <span class="ml-1">{{ league.players.count }}</span>
+          </div>
+        </div>
+        {% if is_president %}
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <h3 class="font-semibold text-sm text-gray-600 mb-2">CODICE DI ACCESSO</h3>
+          <div id="invite-code" class="game-font text-2xl tracking-widest text-center">{{ join_code }}</div>
+          <p class="text-xs text-gray-500 mt-2">Condividi questo codice per invitare nuovi giocatori</p>
+          <button id="copy-code" class="mt-2 w-full text-sm py-1 px-2 bg-gray-200 hover:bg-gray-300 rounded transition">
+            Copia codice
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      <!-- Actions -->
+      {% if is_president %}
+      <div class="mt-6 flex flex-wrap gap-4 justify-center">
+        <a href="{% url 'leagues:create_match' league.id %}" class="btn-secondary px-6 py-3 rounded-lg text-center font-semibold">
+          Aggiungi partita
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tabs navigation -->
+  <!-- Tabs navigation -->
+<div class="mb-6 flex border-b border-gray-200">
+  <button id="tab-standings" class="tab-btn tab-active px-6 py-2 font-medium border-b-2 border-crazy-blue flex items-center">
+    <img src="/static/img/trophy.png" alt="Standings" class="h-5 w-5 mr-2">
+    <span>Classifica</span>
+  </button>
+  <button id="tab-matches" class="tab-btn px-6 py-2 font-medium border-b-2 border-transparent flex items-center">
+    <img src="/static/img/padel.png" alt="Matches" class="h-5 w-5 mr-2">
+    <span>Partite</span>
+  </button>
+</div>
+
+  <!-- TAB 1: STANDINGS -->
+  <div id="content-standings" class="tab-content">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+      <div class="p-4 bg-gray-50 flex justify-between items-center">
+        <div>
+          <span class="text-sm text-gray-500">Aggiornata al:</span>
+          <span class="ml-1 font-medium">{{ now|date:"d/m/Y" }}</span>
+        </div>
+      </div>
+
+      {% if standings %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+              <th class="py-3 px-4 text-left">Pos.</th>
+              <th class="py-3 px-4 text-left">Giocatore</th>
+              <th class="py-3 px-4 text-center">Partite</th>
+              <th class="py-3 px-4 text-center">Vittorie</th>
+              <th class="py-3 px-4 text-center">Sconfitte</th>
+              <th class="py-3 px-4 text-center">Set vinti</th>
+              <th class="py-3 px-4 text-center font-bold">Punti</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {% for player_stats in standings %}
+            <tr class="hover:bg-gray-50 {% if player_stats.player == user %}bg-blue-50{% endif %}">
+              <td class="py-3 px-4">
+                {% if forloop.counter == 1 %}
+                <span class="inline-flex items-center justify-center w-6 h-6 bg-crazy-yellow text-black rounded-full font-bold">1</span>
+                {% elif forloop.counter == 2 %}
+                <span class="inline-flex items-center justify-center w-6 h-6 bg-gray-300 text-gray-800 rounded-full font-bold">2</span>
+                {% elif forloop.counter == 3 %}
+                <span class="inline-flex items-center justify-center w-6 h-6 bg-amber-700 text-white rounded-full font-bold">3</span>
+                {% else %}
+                <span class="inline-flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-700 rounded-full">{{ forloop.counter }}</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 font-medium {% if player_stats.player == user %}text-crazy-blue{% endif %}">
+                {{ player_stats.player.username }}
+                
+              </td>
+              <td class="py-3 px-4 text-center">{{ player_stats.matches_played }}</td>
+              <td class="py-3 px-4 text-center text-green-600 font-medium">{{ player_stats.wins }}</td>
+              <td class="py-3 px-4 text-center text-red-600">{{ player_stats.losses }}</td>
+              <td class="py-3 px-4 text-center">{{ player_stats.sets_won }}</td>
+              <td class="py-3 px-4 text-center font-bold text-lg">{{ player_stats.points }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-8 text-center">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun dato disponibile</h3>
+        <p class="text-gray-600 mb-4">Non ci sono ancora partite registrate in questa lega per generare la classifica.</p>
+        
+        {% if is_president %}
+        <a href="{% url 'leagues:create_match' league.id %}" class="btn-secondary px-6 py-3 rounded-lg inline-block font-semibold">
+          Aggiungi prima partita
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Legend -->
+    {% if standings %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+      <div class="p-4 bg-gray-50">
+        <h3 class="font-medium text-gray-700">Legenda</h3>
+      </div>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm text-gray-600 mb-2"><span class="font-semibold">Punti:</span> 3 per ogni vittoria</p>
+          <p class="text-sm text-gray-600"><span class="font-semibold">Posizione:</span> Ordinata per punti, vittorie, set vinti</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">
+            <span class="inline-flex items-center justify-center w-5 h-5 bg-crazy-yellow text-black rounded-full font-bold text-xs mr-1">1</span>
+            <span class="inline-flex items-center justify-center w-5 h-5 bg-gray-300 text-gray-800 rounded-full font-bold text-xs mr-1">2</span>
+            <span class="inline-flex items-center justify-center w-5 h-5 bg-amber-700 text-white rounded-full font-bold text-xs mr-1">3</span>
+            Medaglie per le prime tre posizioni
+          </p>
+          <p class="text-sm text-gray-600">
+            <span class="inline-block w-3 h-3 bg-blue-50 mr-1"></span>
+            Il tuo nome è evidenziato in azzurro
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- TAB 2: MATCHES LIST -->
+  <div id="content-matches" class="tab-content hidden">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+      <div class="p-4 bg-gray-50 flex justify-between items-center">
+        <div>
+          <span class="text-sm text-gray-500">Totale partite:</span>
+          <span class="ml-1 font-medium">{{ matches|length }}</span>
+        </div>
+      </div>
+
+      {% if matches %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+              <th class="py-3 px-4 text-left">Data</th>
+              <th class="py-3 px-4 text-left">Squadra 1</th>
+              <th class="py-3 px-4 text-center">Risultato</th>
+              <th class="py-3 px-4 text-left">Squadra 2</th>
+              <th class="py-3 px-4 text-center">Vincitore</th>
+              {% if is_president %}
+              <th class="py-3 px-4 text-center">Azioni</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {% for match in matches %}
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{% url 'leagues:match_detail' league.id match.id %}'">
+              <td class="py-4 px-4 text-gray-600 align-top">
+                {{ match.match_date|date:"d/m/Y" }}
+              </td>
+              <td class="py-4 px-4 align-top">
+                <div class="font-medium whitespace-nowrap overflow-hidden text-ellipsis" style="max-width: 200px;">
+                  {{ match.team1_players_str }}
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center align-middle">
+                <span class="game-font text-lg block">
+                  {{ match.team1_sets }}-{{ match.team2_sets }}
+                </span>
+              </td>
+              <td class="py-4 px-4 align-top">
+                <div class="font-medium whitespace-nowrap overflow-hidden text-ellipsis" style="max-width: 200px;">
+                  {{ match.team2_players_str }}
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center align-middle">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                  {% if match.winner_team == 1 %}
+                    bg-blue-100 text-blue-800
+                  {% elif match.winner_team == 2 %}
+                    bg-purple-100 text-purple-800
+                  {% else %}
+                    bg-gray-100 text-gray-800
+                  {% endif %}">
+                  {% if match.winner_team == 1 %}
+                    Squadra 1
+                  {% elif match.winner_team == 2 %}
+                    Squadra 2
+                  {% else %}
+                    Pareggio
+                  {% endif %}
+                </span>
+              </td>
+              {% if is_president %}
+              <td class="py-4 px-4 text-center align-middle" onclick="event.stopPropagation()">
+                <div class="flex justify-center space-x-2">
+                  <a href="{% url 'leagues:match_detail' league.id match.id %}" class="text-gray-600 hover:text-crazy-yellow" title="Dettagli">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </a>
+                  <a href="{% url 'leagues:edit_match' league.id match.id %}" class="text-gray-600 hover:text-crazy-yellow" title="Modifica">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </a>
+                  <a href="{% url 'leagues:delete_match' league.id match.id %}" class="text-gray-600 hover:text-red-600" title="Elimina">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </a>
+                </div>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-8 text-center">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nessuna partita registrata</h3>
+        <p class="text-gray-600 mb-4">Non ci sono ancora partite in questa lega.</p>
+        
+        {% if is_president %}
+        <a href="{% url 'leagues:create_match' league.id %}" class="btn-secondary px-6 py-3 rounded-lg inline-block font-semibold">
+          Aggiungi prima partita
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    {% if matches %}
+    <div class="bg-white rounded-xl shadow-md p-4 text-center text-gray-600 text-sm">
+      Le partite sono ordinate dalle più recenti alle meno recenti.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Copy invite code functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Code copy functionality
+    const copyBtn = document.getElementById('copy-code');
+    const inviteCode = document.getElementById('invite-code');
+    if (copyBtn && inviteCode) {
+      copyBtn.addEventListener('click', function() {
+        const code = inviteCode.textContent.trim();
+        navigator.clipboard.writeText(code).then(function() {
+          // Success - change button text temporarily
+          const originalText = copyBtn.textContent;
+          copyBtn.textContent = 'Copiato!';
+          copyBtn.classList.add('bg-crazy-blue', 'text-white');
+          copyBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+          setTimeout(function() {
+            copyBtn.textContent = originalText;
+            copyBtn.classList.remove('bg-crazy-blue', 'text-white');
+            copyBtn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+          }, 2000);
+        }, function() {
+          // Fallback for clipboard API not available
+          console.error('Clipboard API not available');
+        });
+      });
+    }
+
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function setActiveTab(tabId) {
+      // Hide all content sections
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
+      
+      // Remove active class from all buttons
+      tabButtons.forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.remove('border-crazy-blue');
+        btn.classList.add('border-transparent');
+      });
+      
+      // Show selected content and activate button
+      document.getElementById('content-' + tabId).classList.remove('hidden');
+      document.getElementById('tab-' + tabId).classList.add('tab-active');
+      document.getElementById('tab-' + tabId).classList.remove('border-transparent');
+      document.getElementById('tab-' + tabId).classList.add('border-crazy-blue');
+    }
+
+    // Add click listeners to tabs
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.id.replace('tab-', '');
+        setActiveTab(tabId);
+        
+        // Save selected tab to localStorage
+        localStorage.setItem('crazypadel_active_tab', tabId);
+      });
+    });
+
+    // Restore last selected tab from localStorage or use default
+    const lastActiveTab = localStorage.getItem('crazypadel_active_tab') || 'standings';
+    setActiveTab(lastActiveTab);
+  });
+</script>
+{% endblock %}

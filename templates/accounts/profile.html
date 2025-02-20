@@ -1,0 +1,451 @@
+{% extends 'base.html' %}
+
+{% block title %}Profilo - CrazyPadel{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="navbar-gradient p-6">
+                <div class="flex items-center justify-center">
+                    <img src="/static/img/player.png" alt="Profile" class="h-8 w-8 mr-3">
+                    <h1 class="game-font text-white text-2xl md:text-3xl">PROFILO GIOCATORE</h1>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-6 md:mb-0">
+                        <div class="flex items-center justify-center md:justify-start">
+                            <div class="bg-gray-100 rounded-full p-4 mr-4">
+                                <span class="game-font text-3xl text-crazy-blue">{{ user.username|slice:":1"|upper }}</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">{{ user.username }}</h2>
+                                <p class="text-gray-600">Membro dal {{ user.date_joined|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button id="edit-profile-btn" class="btn-primary px-6 py-3 rounded-lg inline-block font-semibold">
+                            Modifica profilo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Edit Profile Form (hidden by default) -->
+                <div id="edit-profile-form" class="mt-8 hidden">
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div>
+                            <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <div class="mt-1">
+                                <input type="text" name="username" id="id_username" value="{{ form.username.value }}" 
+                                      class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                            </div>
+                            {% if form.username.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="id_first_name" class="block text-sm font-medium text-gray-700">Nome (opzionale)</label>
+                                <div class="mt-1">
+                                    <input type="text" name="first_name" id="id_first_name" value="{{ form.first_name.value|default:'' }}"
+                                          class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="id_last_name" class="block text-sm font-medium text-gray-700">Cognome (opzionale)</label>
+                                <div class="mt-1">
+                                    <input type="text" name="last_name" id="id_last_name" value="{{ form.last_name.value|default:'' }}"
+                                          class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" id="cancel-edit-btn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                                Annulla
+                            </button>
+                            <button type="submit" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+                                Salva modifiche
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Leagues Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-4 bg-crazy-blue text-white flex items-center">
+                <img src="/static/img/trophy.png" alt="Leagues" class="h-6 w-6 mr-2">
+                <h3 class="game-font text-lg">LE TUE LEGHE</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold text-center mb-4">{{ leagues_count }}</div>
+                <div class="text-sm text-gray-600 text-center">Leghe attive</div>
+                
+                <div class="mt-6">
+                    <a href="{% url 'leagues:list' %}" class="block text-center text-crazy-blue hover:underline">
+                        Visualizza tutte le leghe →
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Matches Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-4 bg-crazy-blue text-white flex items-center">
+                <img src="/static/img/court.png" alt="Matches" class="h-6 w-6 mr-2">
+                <h3 class="game-font text-lg">PARTITE GIOCATE</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold text-center mb-4">{{ total_matches }}</div>
+                <div class="text-gray-600 text-center">
+                    <span class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm mr-2">
+                        <span class="font-bold">{{ total_wins }}</span> vinte
+                    </span>
+                    <span class="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                        <span class="font-bold">{{ total_losses }}</span> perse
+                    </span>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        {% if total_matches > 0 %}
+                        <div class="bg-crazy-blue h-2.5 rounded-full" data-width="{{ win_percentage }}"></div>
+                        {% else %}
+                        <div class="bg-gray-400 h-2.5 rounded-full w-full"></div>
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 text-center mt-2">
+                        {% if total_matches > 0 %}
+                        {{ win_percentage }}% vittorie
+                        {% else %}
+                        Nessuna partita giocata
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sets Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-4 bg-crazy-blue text-white flex items-center">
+                <img src="/static/img/scoreboard.png" alt="Sets" class="h-6 w-6 mr-2">
+                <h3 class="game-font text-lg">SET GIOCATI</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl font-bold text-center mb-4">{{ total_sets }}</div>
+                <div class="text-gray-600 text-center">
+                    <span class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        <span class="font-bold">{{ sets_won }}</span> vinti
+                    </span>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-5 gap-1">
+                    {% for i in "12345" %}
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <div class="text-xl font-bold {% if forloop.counter <= avg_sets_per_match %}text-crazy-blue{% else %}text-gray-300{% endif %}">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="text-xs text-gray-500">set</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-sm text-gray-600 text-center mt-2">
+                    Media di {{ avg_sets_per_match|floatformat:1 }} set per partita
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Advanced Stats -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="p-4 bg-gray-50 border-b flex items-center">
+            <img src="/static/img/glasses.png" alt="Statistics" class="h-6 w-6 mr-2">
+            <h2 class="game-font text-xl text-gray-800">STATISTICHE AVANZATE</h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Left Column -->
+                <div>
+                    <!-- Favorite Partner -->
+                    <div class="mb-8">
+                        <h3 class="font-semibold text-lg mb-4 flex items-center">
+                            <span class="mr-3">🤝</span>
+                            Compagno Preferito
+                        </h3>
+                        
+                        {% if favorite_partner %}
+                        <div class="flex items-center">
+                            <div class="bg-gray-100 rounded-full p-3 mr-4">
+                                <span class="game-font text-xl text-crazy-blue">{{ favorite_partner.username|slice:":1"|upper }}</span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-lg">{{ favorite_partner.username }}</div>
+                                <div class="text-sm text-gray-600">
+                                    {{ partner_stats.matches }} partite insieme
+                                    <span class="text-green-600 ml-1">({{ partner_stats.wins }} vittorie)</span>
+                                </div>
+                                <div class="mt-1 text-sm">
+                                    <span class="inline-block px-2 py-0.5 bg-green-100 text-green-800 rounded-sm">
+                                        {{ partner_stats.win_rate }}% vittorie insieme
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-gray-500 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Non hai ancora un compagno preferito
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Toughest Opponent -->
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4 flex items-center">
+                            <span class="mr-3">💀</span>
+                            Bestia Nera
+                        </h3>
+                        
+                        {% if toughest_opponent %}
+                        <div class="flex items-center">
+                            <div class="bg-gray-100 rounded-full p-3 mr-4">
+                                <span class="game-font text-xl text-red-600">{{ toughest_opponent.username|slice:":1"|upper }}</span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-lg">{{ toughest_opponent.username }}</div>
+                                <div class="text-sm text-gray-600">
+                                    {{ opponent_stats.matches }} partite contro
+                                    <span class="text-red-600 ml-1">({{ opponent_stats.losses }} sconfitte)</span>
+                                </div>
+                                <div class="mt-1 text-sm">
+                                    <span class="inline-block px-2 py-0.5 bg-red-100 text-red-800 rounded-sm">
+                                        {{ opponent_stats.loss_rate }}% sconfitte contro
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-gray-500 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Non hai ancora un avversario ricorrente
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div>
+                    <!-- Performance by Time -->
+                    <div class="mb-8">
+                        <h3 class="font-semibold text-lg mb-4 flex items-center">
+                            <span class="mr-3">📊</span>
+                            Performance
+                        </h3>
+                        {% if performance_trend %}
+                        <div class="h-40 w-full bg-gray-50 rounded-lg p-4 flex items-end space-x-1">
+                            {% for month in performance_trend %}
+                            <div class="h-full flex-1 flex flex-col justify-end items-center group">
+                                <div class="w-full rounded-t" 
+                                     data-height="{{ month.win_rate }}"
+                                     data-color="{% if month.win_rate|floatformat:0|divisibleby:5 %}var(--crazy-blue){% else %}#d1d5db{% endif %}">
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">{{ month.month_short }}</div>
+                                
+                                <!-- Tooltip -->
+                                <div class="absolute bottom-full mb-2 bg-white shadow-lg rounded-md p-2 text-xs hidden group-hover:block">
+                                    <div class="font-medium">{{ month.month_name }}</div>
+                                    <div>Vittorie: {{ month.wins }}/{{ month.matches }}</div>
+                                    <div>Win rate: {{ month.win_rate }}%</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-gray-500 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Non ci sono abbastanza dati per mostrare la performance nel tempo
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Stato di Forma -->
+<div>
+    <h3 class="font-semibold text-lg mb-4 flex items-center">
+        <span class="mr-3">🔥</span>
+        Stato di Forma
+    </h3>
+    
+    {% if total_matches > 0 %}
+    <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex justify-between mb-2">
+            <div class="font-medium">Serie di vittorie consecutive</div>
+            <div class="text-green-600 font-semibold">{{ winning_streak }}</div>
+        </div>
+        
+        <div class="flex space-x-2 mt-4">
+            {% for i in "12345" %}
+            <div class="flex-1 h-12 flex items-center justify-center rounded-md 
+                       {% if forloop.counter <= winning_streak %}bg-gradient-to-r from-green-400 to-blue-500 text-white{% else %}bg-gray-200 text-gray-400{% endif %}
+                       transition-all">
+                <span class="font-bold">{{ forloop.counter }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4 text-sm text-gray-600">
+            {% if winning_streak > 3 %}
+            <div class="flex items-center">
+                <span class="text-xl mr-2">🤩</span>
+                <span>Sei in grande forma!</span>
+            </div>
+            {% elif winning_streak > 1 %}
+            <div class="flex items-center">
+                <span class="text-xl mr-2">😊</span>
+                <span>Stai giocando bene!</span>
+            </div>
+            {% elif winning_streak == 1 %}
+            <div class="flex items-center">
+                <span class="text-xl mr-2">🙂</span>
+                <span>Hai vinto l'ultima partita, continua così!</span>
+            </div>
+            {% else %}
+            <div class="flex items-center">
+                <span class="text-xl mr-2">😕</span>
+                <span>Ultima partita persa, ma la prossima andrà meglio!</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-gray-500 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Non hai ancora giocato partite
+    </div>
+    {% endif %}
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-4 bg-gray-50 border-b flex items-center">
+            <img src="/static/img/stopwatch.png" alt="Activity" class="h-6 w-6 mr-2">
+            <h2 class="game-font text-xl text-gray-800">ATTIVITÀ RECENTI</h2>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% if recent_matches %}
+                {% for match in recent_matches %}
+                <div class="p-6 hover:bg-gray-50 transition">
+                    <div class="flex items-center">
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm text-gray-500 mb-1">
+                                {{ match.match_date|date:"d/m/Y" }} • {{ match.league.name }}
+                            </div>
+                            
+                            <div class="flex flex-wrap items-center">
+                                {% with match_players=match.players.all %}
+                                    {% for player in match_players %}
+                                        {% if player.player == user %}
+                                            <span class="font-medium text-crazy-blue">Tu</span>
+                                        {% else %}
+                                            <span class="font-medium">{{ player.player.username }}</span>
+                                        {% endif %}
+                                        
+                                        {% if forloop.counter == 2 and forloop.counter < match_players|length %}
+                                            <span class="mx-2 text-gray-400">vs</span>
+                                        {% elif forloop.counter < 2 or forloop.counter < 4 %}
+                                            <span class="mx-1">/</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                            
+                            <div class="mt-1 text-sm">
+                                Risultato: <span class="font-semibold">{{ match.team1_sets }}-{{ match.team2_sets }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="ml-4">
+                            <a href="{% url 'leagues:match_detail' match.league.id match.id %}" 
+                               class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-crazy-blue">
+                                Dettagli
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+            {% else %}
+                <div class="p-8 text-center">
+                    <div class="text-gray-400 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Nessuna attività recente</h3>
+                    <p class="text-gray-600 mb-4">Non hai ancora partecipato a nessuna partita. Unisciti a una lega per iniziare a giocare!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Profile edit functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const editProfileForm = document.getElementById('edit-profile-form');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        
+        if (editProfileBtn && editProfileForm && cancelEditBtn) {
+            editProfileBtn.addEventListener('click', function() {
+                editProfileForm.classList.remove('hidden');
+                editProfileBtn.classList.add('hidden');
+            });
+            
+            cancelEditBtn.addEventListener('click', function() {
+                editProfileForm.classList.add('hidden');
+                editProfileBtn.classList.remove('hidden');
+            });
+        }
+
+        // Apply dynamic styles through data attributes
+        document.querySelectorAll('[data-width]').forEach(function(el) {
+            el.style.width = el.getAttribute('data-width') + '%';
+        });
+        
+        document.querySelectorAll('[data-height]').forEach(function(el) {
+            el.style.height = el.getAttribute('data-height') + '%';
+            el.style.backgroundColor = el.getAttribute('data-color');
+        });
+    });
+</script>
+{% endblock %}
