@@ -201,7 +201,7 @@
                                 <div class="font-medium text-lg">{{ favorite_partner.username }}</div>
                                 <div class="text-sm text-gray-600">
                                     {{ partner_stats.matches }} partite insieme
-                                    <span class="text-green-600 ml-1">({{ partner_stats.wins }} vittorie)</span>
+                                    <span class="text-green-600 ml-1">({{ partner_stats.wins }} vittori{{ partner_stats.wins|pluralize:"a,e" }})</span>
                                 </div>
                                 <div class="mt-1 text-sm">
                                     <span class="inline-block px-2 py-0.5 bg-green-100 text-green-800 rounded-sm">
@@ -236,7 +236,7 @@
                                 <div class="font-medium text-lg">{{ toughest_opponent.username }}</div>
                                 <div class="text-sm text-gray-600">
                                     {{ opponent_stats.matches }} partite contro
-                                    <span class="text-red-600 ml-1">({{ opponent_stats.losses }} sconfitte)</span>
+                                    <span class="text-red-600 ml-1">({{ opponent_stats.losses }} sconfitt{{ opponent_stats.losses|pluralize:"a,e" }})</span>
                                 </div>
                                 <div class="mt-1 text-sm">
                                     <span class="inline-block px-2 py-0.5 bg-red-100 text-red-800 rounded-sm">
@@ -271,7 +271,7 @@
             <div class="font-medium text-lg">{{ favorite_victim.username }}</div>
             <div class="text-sm text-gray-600">
                 {{ victim_stats.matches }} partite contro
-                <span class="text-green-600 ml-1">({{ victim_stats.wins_against }} vittorie)</span>
+                <span class="text-green-600 ml-1">({{ victim_stats.wins_against }} vittori{{ victim_stats.wins_against|pluralize:"a,e" }})</span>
             </div>
             <div class="mt-1 text-sm">
                 <span class="inline-block px-2 py-0.5 bg-green-100 text-green-800 rounded-sm">
