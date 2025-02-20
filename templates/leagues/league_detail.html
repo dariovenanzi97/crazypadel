@@ -288,6 +288,7 @@
                 <span class="font-medium">{{ player.player.username }}</span>
               </div>
               <div class="flex items-center">
+                <!-- L'Imbattibile - Correggi il singolare/plurale -->
                 <span class="px-2 py-1 {% if player.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
                   {% if player.losses == 0 %}
                     Imbattuto
@@ -326,7 +327,7 @@
               <div class="flex items-center">
                 <span class="px-2 py-1 {% if team.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
                   {% if team.losses == 0 %}
-                    Imbattuti ({{ team.wins }} v.)
+                    Imbattuti ({{ team.wins }} {% if team.wins == 1 %}vittoria{% else %}vittorie{% endif %})
                   {% else %}
                     {{ team.losses }} {% if team.losses == 1 %}sconfitta{% else %}sconfitte{% endif %}
                   {% endif %}
@@ -362,7 +363,7 @@
               </div>
               <div class="flex items-center">
                 <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
-                  {{ player_data.streak }} vittorie consecutive
+                  {{ player_data.streak }} {% if player_data.streak == 1 %}vittoria consecutiva{% else %}vittorie consecutive{% endif %}
                 </span>
               </div>
             </div>
@@ -424,7 +425,9 @@
             <div class="bg-gray-50 rounded-lg p-4 text-center">
               <div class="text-xl font-semibold mb-1">{{ player.player.username }}</div>
               <div class="text-3xl font-bold text-crazy-blue mb-1">{{ player.matches_played }}</div>
-              <div class="text-sm text-gray-500">partite giocate</div>
+              <div class="text-sm text-gray-500">
+                {% if player.matches_played == 1 %}partita giocata{% else %}partite giocate{% endif %}
+              </div>
             </div>
             {% endif %}
           {% empty %}

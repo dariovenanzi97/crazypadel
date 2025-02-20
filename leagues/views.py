@@ -81,12 +81,12 @@ def league_detail(request, league_id):
     
     # 2. Gli Imbattibili - coppie con meno sconfitte
     teams_data = defaultdict(lambda: {'wins': 0, 'losses': 0, 'matches': 0})
-    
+
     if matches:
         for match in matches:
             # Ottieni i giocatori di ciascuna squadra
-            team1_players = list(match.players.filter(team=1).order_by('player__username'))
-            team2_players = list(match.players.filter(team=2).order_by('player__username'))
+            team1_players = list(match.players.filter(team=1).select_related('player'))
+            team2_players = list(match.players.filter(team=2).select_related('player'))
             
             # Solo se entrambe le squadre hanno esattamente 2 giocatori
             if len(team1_players) == 2 and len(team2_players) == 2:
@@ -118,9 +118,9 @@ def league_detail(request, league_id):
                 'win_rate': int((stats['wins'] / stats['matches']) * 100) if stats['matches'] > 0 else 0
             }
             unbeatable_teams.append(team_stats)
-    
-    # Ordina per minor numero di sconfitte, poi per più partite
-    unbeatable_teams = sorted(unbeatable_teams, key=lambda x: (x['losses'], -x['matches'], -x['wins']))[:5]
+
+    # Ordina prima per minor numero di sconfitte, poi per più vittorie, poi per più partite
+    unbeatable_teams = sorted(unbeatable_teams, key=lambda x: (x['losses'], -x['wins'], -x['matches']))[:5]
     
     # 3. In Forma - giocatori con la serie positiva più lunga attiva
     player_streaks = defaultdict(int)
