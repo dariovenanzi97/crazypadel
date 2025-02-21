@@ -386,6 +386,9 @@ def profile(request):
     win_percentage = int((wins_count / total_matches) * 100) if total_matches > 0 else 0
     avg_sets_per_match = round(total_sets / total_matches, 1) if total_matches > 0 else 0
     
+    # Calcola percentuale set vinti
+    set_win_percentage = int((sets_won / total_sets) * 100) if total_sets > 0 else 0
+    
     # Trova compagno preferito
     favorite_partner = None
     partner_stats = None
@@ -409,6 +412,25 @@ def profile(request):
             'losses': worst_opponent_id[1]['losses'],
             'loss_rate': int((worst_opponent_id[1]['losses'] / worst_opponent_id[1]['matches']) * 100) if worst_opponent_id[1]['matches'] > 0 else 0
         }
+
+    # Trova la vittima preferita (avversario contro cui si vince di più)
+    favorite_victim = None
+    victim_stats = None
+    if opponents:
+        # Per ogni avversario, calcola le vittorie (cioè le partite - le sconfitte)
+        for opp_id, stats in opponents.items():
+            wins_against = stats['matches'] - stats['losses']
+            stats['wins_against'] = wins_against
+            
+        # Trova l'avversario con più vittorie
+        best_victim_id = max(opponents.items(), key=lambda x: x[1]['wins_against'])
+        if best_victim_id[1]['wins_against'] > 0:  # Solo se c'è almeno una vittoria
+            favorite_victim = best_victim_id[1]['player']
+            victim_stats = {
+                'matches': best_victim_id[1]['matches'],
+                'wins_against': best_victim_id[1]['wins_against'],
+                'win_rate': int((best_victim_id[1]['wins_against'] / best_victim_id[1]['matches']) * 100) if best_victim_id[1]['matches'] > 0 else 0
+            }
     
     # Esempio di dati per trend di performance
     performance_trend = None
@@ -437,11 +459,11 @@ def profile(request):
     
     # Recupera le partite recenti
     recent_matches = []
+    # Recupera tutte le partite
     if total_matches > 0:
-        # Otteniamo le partite, non i MatchPlayer
         match_ids = user_matches.values_list('match_id', flat=True)
         from leagues.models import Match
-        recent_matches = Match.objects.filter(id__in=match_ids).order_by('-match_date')[:5]
+        recent_matches = Match.objects.filter(id__in=match_ids).order_by('-match_date')  # Rimuovi [:5]
 
     # Calcola striscia di vittorie consecutive
     winning_streak = 0
@@ -466,6 +488,7 @@ def profile(request):
         'total_wins': wins_count,
         'total_losses': losses_count,
         'win_percentage': win_percentage,
+        'set_win_percentage': set_win_percentage,
         'total_sets': total_sets,
         'sets_won': sets_won,
         'avg_sets_per_match': avg_sets_per_match,
@@ -476,6 +499,8 @@ def profile(request):
         'performance_trend': performance_trend,
         'recent_matches': recent_matches,
         'winning_streak': winning_streak,
+        'favorite_victim': favorite_victim,
+        'victim_stats': victim_stats,
     }
     
     return render(request, 'accounts/profile.html', context)
@@ -640,9 +665,9 @@ class League(models.Model):
                 'points': points
             })
         
-        # Ordina per punti, vittorie, set vinti
+        # Ordina per punti, quindi premia chi ha giocato meno partite (rateo più alto), quindi vittorie, set vinti
         standings.sort(
-            key=lambda x: (x['points'], x['wins'], x['sets_won']),
+            key=lambda x: (x['points'], -x['matches_played'], x['wins'], x['sets_won']),
             reverse=True
         )
         
@@ -937,6 +962,10 @@ def create_league(request):
 @login_required
 def league_detail(request, league_id):
     """Vista unificata per i dettagli di una lega, classifica e partite"""
+    from django.db.models import Count, Q, Max, Min
+    from collections import defaultdict
+    import datetime
+    
     league = get_object_or_404(League, id=league_id)
     
     # Verifica che l'utente sia membro della lega
@@ -961,6 +990,128 @@ def league_detail(request, league_id):
     # Ottieni la classifica
     standings = league.get_league_standings()
     
+    # ========== STATISTICHE AVANZATE ==========
+    
+    # 1. L'Imbattibile - giocatori ordinati per minor numero di sconfitte
+    # (già disponibile in standings, ordinato per punti e poi sconfitte)
+    unbeatable_players = sorted(
+        [player for player in standings if player['matches_played'] > 0],
+        key=lambda x: (x['losses'], -x['matches_played'])
+    )[:5]
+    
+    # 2. Gli Imbattibili - coppie con meno sconfitte
+    teams_data = defaultdict(lambda: {'wins': 0, 'losses': 0, 'matches': 0})
+
+    if matches:
+        for match in matches:
+            # Ottieni i giocatori di ciascuna squadra
+            team1_players = list(match.players.filter(team=1).select_related('player'))
+            team2_players = list(match.players.filter(team=2).select_related('player'))
+            
+            # Solo se entrambe le squadre hanno esattamente 2 giocatori
+            if len(team1_players) == 2 and len(team2_players) == 2:
+                # Crea le chiavi delle coppie (ordina i nomi per consistenza)
+                team1_key = tuple(sorted([p.player.username for p in team1_players]))
+                team2_key = tuple(sorted([p.player.username for p in team2_players]))
+                
+                # Incrementa match contati
+                teams_data[team1_key]['matches'] += 1
+                teams_data[team2_key]['matches'] += 1
+                
+                # Determina vittoria/sconfitta
+                if match.team1_sets > match.team2_sets:
+                    teams_data[team1_key]['wins'] += 1
+                    teams_data[team2_key]['losses'] += 1
+                elif match.team2_sets > match.team1_sets:
+                    teams_data[team2_key]['wins'] += 1
+                    teams_data[team1_key]['losses'] += 1
+    
+    # Converti in lista e calcola statistiche
+    unbeatable_teams = []
+    for team, stats in teams_data.items():
+        if stats['matches'] >= 2:  # Solo coppie con almeno 2 partite
+            team_stats = {
+                'player1': team[0],  # Nome del primo giocatore
+                'player2': team[1],  # Nome del secondo giocatore
+                'matches': stats['matches'],
+                'wins': stats['wins'],
+                'losses': stats['losses'],
+                'win_rate': int((stats['wins'] / stats['matches']) * 100) if stats['matches'] > 0 else 0
+            }
+            unbeatable_teams.append(team_stats)
+
+    # Ordina semplicemente per numero di vittorie (in ordine decrescente)
+    unbeatable_teams = sorted(unbeatable_teams, key=lambda x: -x['wins'])[:5]    
+    
+    # 3. In Forma - giocatori con la serie positiva più lunga attiva
+    player_streaks = defaultdict(int)
+    player_last_matches = {}
+    
+    if matches:
+        # Mappa ogni giocatore all'ultima partita giocata
+        all_players = league.players.all()
+        for player in all_players:
+            # Trova tutte le partite del giocatore ordinate per data (dalla più recente)
+            player_matches = MatchPlayer.objects.filter(
+                player=player,
+                match__league=league
+            ).select_related('match').order_by('-match__match_date', '-match__created_at')
+            
+            if player_matches.exists():
+                player_last_matches[player.id] = player_matches[0].match.match_date
+                
+                # Calcola streak di vittorie
+                current_streak = 0
+                for mp in player_matches:
+                    match = mp.match
+                    player_won = (mp.team == 1 and match.team1_sets > match.team2_sets) or \
+                                (mp.team == 2 and match.team2_sets > match.team1_sets)
+                    
+                    if player_won:
+                        current_streak += 1
+                    else:
+                        break
+                
+                player_streaks[player.id] = {
+                    'player': player,
+                    'streak': current_streak
+                }
+    
+    # Ordina per streak più lunga
+    in_form_players = sorted(
+        player_streaks.values(),
+        key=lambda x: -x['streak']
+    )[:5]
+    
+    # 4. Sparito - giocatori con meno partite
+    # Prendi tutti i membri della lega
+    league_members = league.membership_set.select_related('player').all()
+    missing_players = []
+
+    for membership in league_members:
+        player = membership.player
+        player_matches_count = MatchPlayer.objects.filter(
+            player=player,
+            match__league=league
+        ).count()
+        
+        # Includi il giocatore solo se ha almeno una partita
+        if player_matches_count > 0:
+            missing_players.append({
+                'player': player,
+                'matches_count': player_matches_count,
+                'last_match_date': player_last_matches.get(player.id, None)
+            })
+
+    # Ordina per minor numero di partite giocate
+    missing_players = sorted(missing_players, key=lambda x: x['matches_count'])[:5]
+    
+    # 5. Sempre sul pezzo - giocatori con più partite giocate
+    most_active_players = sorted(
+        [p for p in standings if p['matches_played'] > 0],
+        key=lambda x: -x['matches_played']
+    )[:5]
+    
     context = {
         'league': league,
         'is_president': request.user.is_league_president(league),
@@ -969,9 +1120,17 @@ def league_detail(request, league_id):
         'recent_matches': recent_matches,
         'standings': standings,
         'now': timezone.now(),
-        'user': request.user  # per evidenziare l'utente corrente nella classifica
+        'user': request.user,  # per evidenziare l'utente corrente nella classifica
+        
+        # Statistiche avanzate
+        'unbeatable_players': unbeatable_players,
+        'unbeatable_teams': unbeatable_teams,
+        'in_form_players': in_form_players,
+        'missing_players': missing_players,
+        'most_active_players': most_active_players,
     }
     return render(request, 'leagues/league_detail.html', context)
+
 
 @login_required
 def join_league(request, league_id):
