@@ -249,7 +249,7 @@
     
     <!-- Custom JS -->
     <script>
-    // Toggle mobile menu
+        // Toggle mobile menu
 const mobileMenuButton = document.getElementById('mobile-menu-button');
 const mobileMenu = document.getElementById('mobile-menu');
 
@@ -333,18 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fallbackLoader) fallbackLoader.style.display = 'block';
     }
     
-    // Variabili per gestire il tempo minimo del loader
-    let loaderMinTimeoutId = null;
-    const MINIMUM_LOADER_TIME = 5000; // 2 secondi minimi di visualizzazione
-    let loaderReadyToHide = false;
-    let loaderIsVisible = false;
-    
     // Funzione che mostra il loader
     window.showLoader = function() {
-        // Resetta lo stato
-        loaderReadyToHide = false;
-        loaderIsVisible = true;
-        
         // Mostra il loader
         const overlay = document.getElementById('loading-overlay');
         if (overlay) overlay.classList.remove('hidden');
@@ -360,56 +350,24 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             useFallbackLoader();
         }
-        
-        // Cancella eventuali timeout precedenti
-        if (loaderMinTimeoutId) {
-            clearTimeout(loaderMinTimeoutId);
-        }
-        
-        // Imposta un timeout per il tempo minimo di visualizzazione
-        loaderMinTimeoutId = setTimeout(() => {
-            console.log('Minimum loader time elapsed');
-            if (loaderReadyToHide) {
-                // Se qualcuno ha già tentato di nasconderlo, nascondilo ora
-                actuallyHideLoader();
-            } else {
-                // Altrimenti, segna che è pronto per essere nascosto
-                loaderMinTimeoutId = null;
-            }
-        }, MINIMUM_LOADER_TIME);
     };
     
-    // Funzione che richiede di nascondere il loader
+    // Funzione che nasconde il loader con ritardo
     window.hideLoader = function() {
-        console.log('hideLoader requested');
-        if (!loaderIsVisible) return;
-        
-        if (loaderMinTimeoutId) {
-            // Il tempo minimo non è ancora trascorso, segna che è pronto per essere nascosto
-            loaderReadyToHide = true;
-        } else {
-            // Il tempo minimo è già trascorso, nascondi subito
-            actuallyHideLoader();
-        }
-    };
-    
-    // Funzione che effettivamente nasconde il loader
-    function actuallyHideLoader() {
-        console.log('Actually hiding loader');
-        loaderIsVisible = false;
-        loaderReadyToHide = false;
-        
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.classList.add('hidden');
-        
-        if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
-            try {
-                loadingAnimation.stop();
-            } catch (e) {
-                console.warn('Error stopping Lottie:', e);
+        // Forza un ritardo minimo di 2 secondi prima di nascondere effettivamente il loader
+        setTimeout(function() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            
+            if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
+                try {
+                    loadingAnimation.stop();
+                } catch (e) {
+                    console.warn('Error stopping Lottie:', e);
+                }
             }
-        }
-    }
+        }, 2000);  // 2000 millisecondi = 2 secondi
+    };
     
     // Aggiungi il loader a tutti i form
     const forms = document.querySelectorAll('form');
