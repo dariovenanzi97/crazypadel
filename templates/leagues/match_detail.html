@@ -3,20 +3,20 @@
 {% block title %}Dettagli Partita - {{ league.name }} - CrazyPadel{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
+<div class="max-w-4xl mx-auto px-4">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="mb-6">
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="navbar-gradient p-6">
+            <div class="navbar-gradient p-5">
                 <div class="flex items-center justify-center">
-                    <img src="/static/img/padel.png" alt="Match Details" class="h-8 w-8 mr-3">
-                    <h1 class="game-font text-white text-2xl md:text-3xl">DETTAGLI PARTITA</h1>
+                    <img src="/static/img/padel.png" alt="Match Details" class="h-7 w-7 mr-3">
+                    <h1 class="game-font text-white text-xl md:text-2xl">DETTAGLI PARTITA</h1>
                 </div>
-                <h2 class="text-white text-center text-lg mt-2">{{ league.name }}</h2>
+                <h2 class="text-white text-center text-sm mt-1">{{ league.name }}</h2>
             </div>
             
-            <div class="p-4 bg-gray-50 flex justify-between items-center">
-                <a href="{% url 'leagues:detail' league.id %}" class="text-crazy-blue hover:underline flex items-center">
+            <div class="p-3 bg-gray-50 flex justify-between items-center">
+                <a href="{% url 'leagues:detail' league.id %}" class="text-crazy-blue hover:underline flex items-center text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -26,15 +26,15 @@
                 {% if is_president %}
                 <div class="flex space-x-2">
                     <a href="{% url 'leagues:edit_match' league.id match.id %}" 
-                       class="text-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded transition flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="text-xs px-2.5 py-1 bg-gray-200 hover:bg-gray-300 rounded transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         Modifica
                     </a>
                     <a href="{% url 'leagues:delete_match' league.id match.id %}" 
-                       class="text-sm px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="text-xs px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Elimina
@@ -45,163 +45,148 @@
         </div>
     </div>
     
-    <!-- Match Details -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-        <div class="p-4 bg-gray-50 border-b">
-            <h2 class="font-medium text-gray-700">Informazioni partita</h2>
+    <!-- Match Scoreboard Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+        <!-- Match Date & Status -->
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="/static/img/calendar.png" alt="Calendar" class="h-5 w-5 mr-2">
+                <span class="text-sm text-gray-700">{{ match.match_date|date:"d/m/Y" }}</span>
+            </div>
+            
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                {% if match.winner_team == 1 %}
+                    bg-blue-100 text-blue-800
+                {% elif match.winner_team == 2 %}
+                    bg-purple-100 text-purple-800
+                {% else %}
+                    bg-gray-100 text-gray-800
+                {% endif %}">
+                {% if match.winner_team == 1 %}
+                    Ha vinto la squadra 1
+                {% elif match.winner_team == 2 %}
+                    Ha vinto la squadra 2
+                {% else %}
+                    Pareggio
+                {% endif %}
+            </div>
         </div>
         
-        <div class="p-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <div class="flex items-center mb-4 md:mb-0">
-                    <div class="bg-gray-100 rounded-full p-3 mr-3">
-                        <img src="/static/img/calendar.png" alt="Calendar" class="h-6 w-6">
-                    </div>
-                    <div>
-                        <div class="text-sm text-gray-500">Data</div>
-                        <div class="font-medium">{{ match.match_date|date:"d/m/Y" }}</div>
-                    </div>
-                </div>
+        <!-- Scoreboard -->
+        <div class="flex flex-col md:flex-row border-b">
+            <!-- Team 1 -->
+            <div class="flex-1 bg-blue-50 p-5 flex flex-col relative">
+                <h3 class="text-blue-800 font-semibold mb-4 text-center">Squadra 1</h3>
                 
-                <div>
-                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                        {% if match.winner_team == 1 %}
-                            bg-blue-100 text-blue-800
-                        {% elif match.winner_team == 2 %}
-                            bg-purple-100 text-purple-800
-                        {% else %}
-                            bg-gray-100 text-gray-800
-                        {% endif %}">
-                        {% if match.winner_team == 1 %}
-                            Ha vinto la squadra 1
-                        {% elif match.winner_team == 2 %}
-                            Ha vinto la squadra 2
-                        {% else %}
-                            Pareggio
+                <div class="flex-grow space-y-3 mb-6">
+                    {% for player in match.players.all %}
+                        {% if player.team == 1 %}
+                        <div class="flex items-center">
+                            <div class="w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center text-white mr-3">
+                                <span class="game-font text-xs">{{ player.player.username|slice:":1"|upper }}</span>
+                            </div>
+                            <span class="font-medium">{{ player.player.username }}</span>
+                        </div>
                         {% endif %}
-                    </div>
-                </div>
-            </div>
-                
-            <!-- Teams and Score -->
-            <div class="flex flex-col md:flex-row items-stretch">
-                <!-- Team 1 -->
-                <div class="flex-1 bg-blue-50 rounded-lg p-4 mb-4 md:mb-0 md:mr-4 border border-blue-100">
-                    <h3 class="font-medium text-blue-800 mb-3">Squadra 1</h3>
-                    
-                    <div class="space-y-2 mb-4">
-                        {% for player in match.players.all %}
-                            {% if player.team == 1 %}
-                            <div class="flex items-center">
-                                <div class="bg-white rounded-full p-2 mr-2 shadow-sm">
-                                    <span class="game-font text-sm text-blue-600">{{ player.player.username|slice:":1"|upper }}</span>
-                                </div>
-                                <span class="font-medium">{{ player.player.username }}</span>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="text-sm text-gray-600">Set vinti</div>
-                        <div class="text-3xl font-bold text-blue-800">{{ match.team1_sets }}</div>
-                    </div>
+                    {% endfor %}
                 </div>
                 
-                <!-- Versus -->
-                <div class="hidden md:flex items-center justify-center">
-                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-                        <span class="text-xl font-bold text-gray-700">VS</span>
-                    </div>
-                </div>
-                
-                <!-- Mobile VS -->
-                <div class="flex md:hidden items-center justify-center my-2 mr-4">
-                    <span class="text-xl font-bold text-gray-700">VS</span>
-                </div>
-                
-                <!-- Team 2 -->
-                <div class="flex-1 bg-purple-50 rounded-lg p-4 mb-4 mt-4 md:mb-0 md:mr-4 border border-blue-100">
-                    <h3 class="font-medium text-purple-800 mb-3">Squadra 2</h3>
-                    
-                    <div class="space-y-2 mb-4">
-                        {% for player in match.players.all %}
-                            {% if player.team == 2 %}
-                            <div class="flex items-center">
-                                <div class="bg-white rounded-full p-2 mr-2 shadow-sm">
-                                    <span class="game-font text-sm text-purple-600">{{ player.player.username|slice:":1"|upper }}</span>
-                                </div>
-                                <span class="font-medium">{{ player.player.username }}</span>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="text-sm text-gray-600">Set vinti</div>
-                        <div class="text-3xl font-bold text-purple-800">{{ match.team2_sets }}</div>
-                    </div>
+                <div class="text-center mt-auto">
+                    <div class="text-xs text-gray-600 uppercase">Set vinti</div>
+                    <div class="text-5xl font-bold text-blue-800 my-2">{{ match.team1_sets }}</div>
                 </div>
             </div>
             
-            <!-- Match Metadata -->
-            <div class="mt-6 text-sm text-gray-500">
-                <div class="flex justify-between border-t border-gray-200 pt-4">
-                    <div>Registrata da: {{ league.president.username }}</div>
-                    <div>Ultima modifica: {{ match.updated_at|date:"d/m/Y H:i" }}</div>
+            <!-- VS -->
+            <div class="flex items-center justify-center py-3 bg-gray-50 md:w-16">
+                <span class="game-font text-gray-500 text-xl">VS</span>
+            </div>
+            
+            <!-- Team 2 -->
+            <div class="flex-1 bg-purple-50 p-5 flex flex-col">
+                <h3 class="text-purple-800 font-semibold mb-4 text-center">Squadra 2</h3>
+                
+                <div class="flex-grow space-y-3 mb-6">
+                    {% for player in match.players.all %}
+                        {% if player.team == 2 %}
+                        <div class="flex items-center">
+                            <div class="w-7 h-7 bg-purple-500 rounded-full flex items-center justify-center text-white mr-3">
+                                <span class="game-font text-xs">{{ player.player.username|slice:":1"|upper }}</span>
+                            </div>
+                            <span class="font-medium">{{ player.player.username }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-auto">
+                    <div class="text-xs text-gray-600 uppercase">Set vinti</div>
+                    <div class="text-5xl font-bold text-purple-800 my-2">{{ match.team2_sets }}</div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Match Metadata -->
+        <div class="p-3 text-xs text-gray-500 flex justify-between items-center">
+            <div>Registrata da: {{ league.president.username }}</div>
+            <div>Ultima modifica: {{ match.updated_at|date:"d/m/Y H:i" }}</div>
         </div>
     </div>
     
     <!-- Match Impact -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="p-4 bg-gray-50 border-b">
-            <h2 class="font-medium text-gray-700">Impatto sulla classifica</h2>
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="p-3 bg-gray-50 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h2 class="font-medium text-gray-700 text-sm">Impatto sulla classifica</h2>
         </div>
         
-        <div class="p-6">
-            <div class="flex flex-col md:flex-row justify-between items-stretch gap-6">
-                <!-- Winners -->
-                <div class="flex-1 bg-green-50 rounded-lg p-4 border border-green-100">
-                    <h3 class="font-medium text-green-800 mb-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        {% if match.winner_team %}
-                            Vincitori (+3 punti)
-                        {% else %}
-                            Pareggio (+1 punto ciascuno)
-                        {% endif %}
+        <div class="p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Team 1 Points -->
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <span class="w-5 h-5 flex items-center justify-center bg-blue-100 rounded-full mr-2">
+                            <span class="text-blue-800 text-xs font-bold">1</span>
+                        </span>
+                        Squadra 1
                     </h3>
                     
                     <div class="space-y-2">
-                        {% if match.winner_team == 1 %}
-                            {% for player in match.players.all %}
-                                {% if player.team == 1 %}
-                                <div class="flex items-center">
-                                    <span class="game-font text-sm text-green-600 mr-2">+3</span>
-                                    <span class="font-medium">{{ player.player.username }}</span>
-                                </div>
-                                {% endif %}
-                            {% endfor %}
-                        {% elif match.winner_team == 2 %}
-                            {% for player in match.players.all %}
-                                {% if player.team == 2 %}
-                                <div class="flex items-center">
-                                    <span class="game-font text-sm text-green-600 mr-2">+3</span>
-                                    <span class="font-medium">{{ player.player.username }}</span>
-                                </div>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {% for player in match.players.all %}
-                                <div class="flex items-center">
-                                    <span class="game-font text-sm text-green-600 mr-2">+1</span>
-                                    <span class="font-medium">{{ player.player.username }}</span>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                        {% for player in match.players.all %}
+                            {% if player.team == 1 %}
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">{{ player.player.username }}</span>
+                                <span class="game-font text-sm {% if match.winner_team == 1 %}text-green-600{% else %}text-gray-500{% endif %}">
+                                    {% if match.winner_team == 1 %}+3{% else %}+0{% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Team 2 Points -->
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <span class="w-5 h-5 flex items-center justify-center bg-purple-100 rounded-full mr-2">
+                            <span class="text-purple-800 text-xs font-bold">2</span>
+                        </span>
+                        Squadra 2
+                    </h3>
+                    
+                    <div class="space-y-2">
+                        {% for player in match.players.all %}
+                            {% if player.team == 2 %}
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">{{ player.player.username }}</span>
+                                <span class="game-font text-sm {% if match.winner_team == 2 %}text-green-600{% else %}text-gray-500{% endif %}">
+                                    {% if match.winner_team == 2 %}+3{% else %}+0{% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
