@@ -249,182 +249,191 @@
     
     <!-- Custom JS -->
     <script>
-        // Toggle mobile menu
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
+    // Toggle mobile menu
+const mobileMenuButton = document.getElementById('mobile-menu-button');
+const mobileMenu = document.getElementById('mobile-menu');
 
-        // Inizializza l'animazione Lottie con gestione errori
-        let loadingAnimation;
-        let animationLoaded = false;
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const lottieContainer = document.getElementById('lottie-animation');
-            const fallbackLoader = lottieContainer.querySelector('.loader-spinner');
-            
-            // Prova a caricare l'animazione Lottie
-            try {
-                // Nascondi il loader fallback inizialmente
-                if (fallbackLoader) fallbackLoader.style.display = 'none';
-                
-                // Prova diversi percorsi per il file JSON
-                const jsonPaths = [
-                    `${window.location.origin}/static/animations/tennisball.json`,
-                    '/static/animations/tennisball.json',
-                    './static/animations/tennisball.json'
-                ];
-                
-                // Funzione per il caricamento con fallback
-                function loadAnimation(pathIndex) {
-                    if (pathIndex >= jsonPaths.length) {
-                        // Abbiamo provato tutti i percorsi, usa il fallback
-                        console.warn('Impossibile caricare l\'animazione Lottie, uso il fallback');
-                        useFallbackLoader();
-                        return;
-                    }
-                    
-                    try {
-                        loadingAnimation = lottie.loadAnimation({
-                            container: lottieContainer,
-                            renderer: 'svg',
-                            loop: true,
-                            autoplay: false,
-                            path: jsonPaths[pathIndex]
-                        });
-                        
-                        // Gestisci gli eventi di successo e fallimento
-                        loadingAnimation.addEventListener('DOMLoaded', () => {
-                            console.log('Lottie animation loaded successfully');
-                            animationLoaded = true;
-                            if (fallbackLoader) fallbackLoader.style.display = 'none';
-                        });
-                        
-                        loadingAnimation.addEventListener('data_failed', () => {
-                            console.warn(`Failed to load Lottie animation from path: ${jsonPaths[pathIndex]}`);
-                            loadingAnimation.destroy();
-                            // Prova il prossimo percorso
-                            loadAnimation(pathIndex + 1);
-                        });
-                        
-                        loadingAnimation.addEventListener('error', () => {
-                            console.warn(`Error loading Lottie animation from path: ${jsonPaths[pathIndex]}`);
-                            loadingAnimation.destroy();
-                            // Prova il prossimo percorso
-                            loadAnimation(pathIndex + 1);
-                        });
-                    } catch (error) {
-                        console.warn('Error initializing Lottie:', error);
-                        // Prova il prossimo percorso
-                        loadAnimation(pathIndex + 1);
-                    }
-                }
-                
-                // Inizia con il primo percorso
-                loadAnimation(0);
-                
-            } catch (error) {
-                console.warn('Lottie initialization error:', error);
-                useFallbackLoader();
-            }
-            
-            // Funzione per usare il loader CSS fallback
-            function useFallbackLoader() {
-                animationLoaded = false;
-                if (fallbackLoader) fallbackLoader.style.display = 'block';
-            }
-            
-            // Funzioni globali per mostrare/nascondere il loader
-let loaderTimer = null;
-const minLoadTime = 2000; // Minimo 2 secondi di visualizzazione
-let loaderStartTime = 0;
-
-window.showLoader = function() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.classList.remove('hidden');
-    
-    // Memorizza il momento di inizio del caricamento
-    loaderStartTime = Date.now();
-    
-    if (animationLoaded && loadingAnimation && typeof loadingAnimation.play === 'function') {
-        try {
-            loadingAnimation.play();
-        } catch (e) {
-            console.warn('Error playing Lottie:', e);
-            useFallbackLoader();
-        }
-    } else {
-        useFallbackLoader();
-    }
-};
-
-window.hideLoader = function() {
-    // Calcola quanto tempo è passato dall'inizio del caricamento
-    const elapsedTime = Date.now() - loaderStartTime;
-    const remainingTime = Math.max(0, minLoadTime - elapsedTime);
-    
-    // Se è passato meno tempo del minimo richiesto, imposta un timer
-    if (remainingTime > 0) {
-        // Cancella eventuali timer precedenti
-        if (loaderTimer) clearTimeout(loaderTimer);
-        
-        // Imposta un nuovo timer per nascondere il loader dopo il tempo rimanente
-        loaderTimer = setTimeout(() => {
-            actuallyHideLoader();
-        }, remainingTime);
-    } else {
-        // Se è già passato abbastanza tempo, nascondi subito
-        actuallyHideLoader();
-    }
-};
-
-// Funzione che effettivamente nasconde il loader
-function actuallyHideLoader() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.classList.add('hidden');
-    
-    if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
-        try {
-            loadingAnimation.stop();
-        } catch (e) {
-            console.warn('Error stopping Lottie:', e);
-        }
-    }
-    
-    // Resetta il timer
-    if (loaderTimer) {
-        clearTimeout(loaderTimer);
-        loaderTimer = null;
-    }
+if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
 }
 
-            // Aggiungi il loader a tutti i form
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                form.addEventListener('submit', function() {
-                    // Non mostrare il loader se ci sono errori di validazione
-                    if (this.checkValidity()) {
-                        window.showLoader();
-                    }
-                });
-            });
+// Variabili per l'animazione Lottie
+let loadingAnimation;
+let animationLoaded = false;
 
-            // Mostra loader durante i cambi di pagina
-            const links = document.querySelectorAll('a:not([target="_blank"]):not([download]):not([href^="#"]):not([href^="javascript:"])');
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Ignora click con tasti modificatori o su link con attributi speciali
-                    if (e.metaKey || e.ctrlKey || this.getAttribute('data-no-loader') !== null) {
-                        return;
-                    }
-                    window.showLoader();
+document.addEventListener('DOMContentLoaded', () => {
+    const lottieContainer = document.getElementById('lottie-animation');
+    const fallbackLoader = lottieContainer.querySelector('.loader-spinner');
+    
+    // Prova a caricare l'animazione Lottie con gestione errori
+    try {
+        // Nascondi il loader fallback inizialmente
+        if (fallbackLoader) fallbackLoader.style.display = 'none';
+        
+        // Percorsi possibili per il file JSON
+        const jsonPaths = [
+            `${window.location.origin}/static/animations/tennisball.json`,
+            '/static/animations/tennisball.json',
+            './static/animations/tennisball.json'
+        ];
+        
+        // Funzione per il caricamento con fallback
+        function loadAnimation(pathIndex) {
+            if (pathIndex >= jsonPaths.length) {
+                console.warn('Impossibile caricare l\'animazione Lottie, uso il fallback');
+                useFallbackLoader();
+                return;
+            }
+            
+            try {
+                loadingAnimation = lottie.loadAnimation({
+                    container: lottieContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: false,
+                    path: jsonPaths[pathIndex]
                 });
-            });
+                
+                loadingAnimation.addEventListener('DOMLoaded', () => {
+                    console.log('Lottie animation loaded successfully');
+                    animationLoaded = true;
+                    if (fallbackLoader) fallbackLoader.style.display = 'none';
+                });
+                
+                loadingAnimation.addEventListener('data_failed', () => {
+                    console.warn(`Failed to load Lottie animation from path: ${jsonPaths[pathIndex]}`);
+                    loadingAnimation.destroy();
+                    loadAnimation(pathIndex + 1);
+                });
+                
+                loadingAnimation.addEventListener('error', () => {
+                    console.warn(`Error loading Lottie animation from path: ${jsonPaths[pathIndex]}`);
+                    loadingAnimation.destroy();
+                    loadAnimation(pathIndex + 1);
+                });
+            } catch (error) {
+                console.warn('Error initializing Lottie:', error);
+                loadAnimation(pathIndex + 1);
+            }
+        }
+        
+        // Inizia con il primo percorso
+        loadAnimation(0);
+        
+    } catch (error) {
+        console.warn('Lottie initialization error:', error);
+        useFallbackLoader();
+    }
+    
+    // Funzione per usare il loader CSS fallback
+    function useFallbackLoader() {
+        animationLoaded = false;
+        if (fallbackLoader) fallbackLoader.style.display = 'block';
+    }
+    
+    // Variabili per gestire il tempo minimo del loader
+    let loaderMinTimeoutId = null;
+    const MINIMUM_LOADER_TIME = 2000; // 2 secondi minimi di visualizzazione
+    let loaderReadyToHide = false;
+    let loaderIsVisible = false;
+    
+    // Funzione che mostra il loader
+    window.showLoader = function() {
+        // Resetta lo stato
+        loaderReadyToHide = false;
+        loaderIsVisible = true;
+        
+        // Mostra il loader
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.remove('hidden');
+        
+        // Avvia l'animazione
+        if (animationLoaded && loadingAnimation && typeof loadingAnimation.play === 'function') {
+            try {
+                loadingAnimation.play();
+            } catch (e) {
+                console.warn('Error playing Lottie:', e);
+                useFallbackLoader();
+            }
+        } else {
+            useFallbackLoader();
+        }
+        
+        // Cancella eventuali timeout precedenti
+        if (loaderMinTimeoutId) {
+            clearTimeout(loaderMinTimeoutId);
+        }
+        
+        // Imposta un timeout per il tempo minimo di visualizzazione
+        loaderMinTimeoutId = setTimeout(() => {
+            console.log('Minimum loader time elapsed');
+            if (loaderReadyToHide) {
+                // Se qualcuno ha già tentato di nasconderlo, nascondilo ora
+                actuallyHideLoader();
+            } else {
+                // Altrimenti, segna che è pronto per essere nascosto
+                loaderMinTimeoutId = null;
+            }
+        }, MINIMUM_LOADER_TIME);
+    };
+    
+    // Funzione che richiede di nascondere il loader
+    window.hideLoader = function() {
+        console.log('hideLoader requested');
+        if (!loaderIsVisible) return;
+        
+        if (loaderMinTimeoutId) {
+            // Il tempo minimo non è ancora trascorso, segna che è pronto per essere nascosto
+            loaderReadyToHide = true;
+        } else {
+            // Il tempo minimo è già trascorso, nascondi subito
+            actuallyHideLoader();
+        }
+    };
+    
+    // Funzione che effettivamente nasconde il loader
+    function actuallyHideLoader() {
+        console.log('Actually hiding loader');
+        loaderIsVisible = false;
+        loaderReadyToHide = false;
+        
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        
+        if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
+            try {
+                loadingAnimation.stop();
+            } catch (e) {
+                console.warn('Error stopping Lottie:', e);
+            }
+        }
+    }
+    
+    // Aggiungi il loader a tutti i form
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            // Non mostrare il loader se ci sono errori di validazione
+            if (this.checkValidity()) {
+                window.showLoader();
+            }
         });
+    });
+
+    // Mostra loader durante i cambi di pagina
+    const links = document.querySelectorAll('a:not([target="_blank"]):not([download]):not([href^="#"]):not([href^="javascript:"])');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Ignora click con tasti modificatori o su link con attributi speciali
+            if (e.metaKey || e.ctrlKey || this.getAttribute('data-no-loader') !== null) {
+                return;
+            }
+            window.showLoader();
+        });
+    });
+});
     </script>
     
     {% block extra_js %}{% endblock %}
