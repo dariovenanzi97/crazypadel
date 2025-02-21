@@ -322,52 +322,40 @@
   </div>
 </div>
     
-<!-- Gli Imbattibili -->
+<!-- Double Trouble -->
 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
   <div class="p-4 bg-gray-50 border-b">
     <h3 class="font-semibold text-lg flex items-center">
       <span class="mr-2">👥</span>
       Double Trouble
     </h3>
-    <p class="text-xs text-gray-500 mt-1">
-      {% if unbeatable_teams.0.losses == 0 %}
-        Coppie imbattute
-      {% else %}
-        Coppie con meno sconfitte
-      {% endif %}
-    </p>
+    <p class="text-xs text-gray-500 mt-1">Coppie con più vittorie</p>
   </div>
   <div class="p-4">
     <div class="divide-y divide-gray-100">
-      {% with has_unbeaten=False %}
-        {% for team in unbeatable_teams %}
-          {% if forloop.first and team.losses == 0 %}
-            {% with has_unbeaten=True %}{% endwith %}
-          {% endif %}
-          
-          {% if team.losses == 0 or not has_unbeaten %}
-            <div class="py-3 flex items-center justify-between">
-              <div class="flex items-center">
-                <span class="mr-3 font-semibold text-sm">{{ forloop.counter }}</span>
-                <span class="font-medium">{{ team.player1 }} / {{ team.player2 }}</span>
-              </div>
-              <div class="flex items-center">
-                <span class="px-2 py-1 {% if team.losses == 0 %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-700{% endif %} rounded text-sm">
-                  {% if team.losses == 0 %}
-                    Imbattuti ({{ team.wins }} {% if team.wins == 1 %}vittoria{% else %}vittorie{% endif %})
-                  {% else %}
-                    {{ team.losses }} {% if team.losses == 1 %}sconfitta{% else %}sconfitte{% endif %}
-                  {% endif %}
-                </span>
-              </div>
-            </div>
-          {% endif %}
-        {% empty %}
-          <div class="py-4 text-center text-gray-500">
-            Dati insufficienti
+      {% for team in unbeatable_teams %}
+        <div class="py-3 flex items-center justify-between">
+          <div class="flex items-center flex-1 mr-2">
+            <span class="mr-3 font-semibold text-sm">{{ forloop.counter }}</span>
+            <span class="font-medium">
+              {% if team.player1 %}
+                {{ team.player1 }} / {{ team.player2 }}
+              {% else %}
+                {{ team.players.0 }} / {{ team.players.1 }}
+              {% endif %}
+            </span>
           </div>
-        {% endfor %}
-      {% endwith %}
+          <div>
+            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
+              {{ team.wins }} {% if team.wins == 1 %}vittoria{% else %}vittorie{% endif %}
+            </span>
+          </div>
+        </div>
+      {% empty %}
+        <div class="py-4 text-center text-gray-500">
+          Dati insufficienti
+        </div>
+      {% endfor %}
     </div>
   </div>
 </div>

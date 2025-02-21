@@ -120,8 +120,8 @@ def league_detail(request, league_id):
             }
             unbeatable_teams.append(team_stats)
 
-    # Ordina prima per minor numero di sconfitte, poi per più vittorie, poi per più partite
-    unbeatable_teams = sorted(unbeatable_teams, key=lambda x: (x['losses'], -x['wins'], -x['matches']))[:5]
+    # Ordina semplicemente per numero di vittorie (in ordine decrescente)
+    unbeatable_teams = sorted(unbeatable_teams, key=lambda x: -x['wins'])[:5]    
     
     # 3. In Forma - giocatori con la serie positiva più lunga attiva
     player_streaks = defaultdict(int)
