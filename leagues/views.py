@@ -111,7 +111,8 @@ def league_detail(request, league_id):
     for team, stats in teams_data.items():
         if stats['matches'] >= 2:  # Solo coppie con almeno 2 partite
             team_stats = {
-                'players': team,
+                'player1': team[0],  # Nome del primo giocatore
+                'player2': team[1],  # Nome del secondo giocatore
                 'matches': stats['matches'],
                 'wins': stats['wins'],
                 'losses': stats['losses'],
