@@ -339,34 +339,68 @@
             }
             
             // Funzioni globali per mostrare/nascondere il loader
-            window.showLoader = function() {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) overlay.classList.remove('hidden');
-                
-                if (animationLoaded && loadingAnimation && typeof loadingAnimation.play === 'function') {
-                    try {
-                        loadingAnimation.play();
-                    } catch (e) {
-                        console.warn('Error playing Lottie:', e);
-                        useFallbackLoader();
-                    }
-                } else {
-                    useFallbackLoader();
-                }
-            };
-            
-            window.hideLoader = function() {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) overlay.classList.add('hidden');
-                
-                if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
-                    try {
-                        loadingAnimation.stop();
-                    } catch (e) {
-                        console.warn('Error stopping Lottie:', e);
-                    }
-                }
-            };
+let loaderTimer = null;
+const minLoadTime = 2000; // Minimo 2 secondi di visualizzazione
+let loaderStartTime = 0;
+
+window.showLoader = function() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    
+    // Memorizza il momento di inizio del caricamento
+    loaderStartTime = Date.now();
+    
+    if (animationLoaded && loadingAnimation && typeof loadingAnimation.play === 'function') {
+        try {
+            loadingAnimation.play();
+        } catch (e) {
+            console.warn('Error playing Lottie:', e);
+            useFallbackLoader();
+        }
+    } else {
+        useFallbackLoader();
+    }
+};
+
+window.hideLoader = function() {
+    // Calcola quanto tempo è passato dall'inizio del caricamento
+    const elapsedTime = Date.now() - loaderStartTime;
+    const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+    
+    // Se è passato meno tempo del minimo richiesto, imposta un timer
+    if (remainingTime > 0) {
+        // Cancella eventuali timer precedenti
+        if (loaderTimer) clearTimeout(loaderTimer);
+        
+        // Imposta un nuovo timer per nascondere il loader dopo il tempo rimanente
+        loaderTimer = setTimeout(() => {
+            actuallyHideLoader();
+        }, remainingTime);
+    } else {
+        // Se è già passato abbastanza tempo, nascondi subito
+        actuallyHideLoader();
+    }
+};
+
+// Funzione che effettivamente nasconde il loader
+function actuallyHideLoader() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    
+    if (animationLoaded && loadingAnimation && typeof loadingAnimation.stop === 'function') {
+        try {
+            loadingAnimation.stop();
+        } catch (e) {
+            console.warn('Error stopping Lottie:', e);
+        }
+    }
+    
+    // Resetta il timer
+    if (loaderTimer) {
+        clearTimeout(loaderTimer);
+        loaderTimer = null;
+    }
+}
 
             // Aggiungi il loader a tutti i form
             const forms = document.querySelectorAll('form');
