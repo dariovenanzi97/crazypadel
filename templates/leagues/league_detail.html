@@ -82,6 +82,7 @@
               <th class="py-2 px-2 text-center font-bold" title="Punti">PT</th>
               <th class="py-2 px-2 text-center" title="Partite">PG</th>
               <th class="py-2 px-2 text-center" title="Vittorie">V</th>
+              <th class="py-2 px-2 text-center" title="Pareggi">P</th>
               <th class="py-2 px-2 text-center" title="Sconfitte">S</th>
               <th class="py-2 px-2 text-center" title="Set vinti">SV</th>
               </tr>
@@ -106,6 +107,7 @@
               <td class="py-3 px-4 text-center font-bold text-lg">{{ player_stats.points }}</td>
               <td class="py-3 px-4 text-center">{{ player_stats.matches_played }}</td>
               <td class="py-3 px-4 text-center text-green-600 font-medium">{{ player_stats.wins }}</td>
+              <td class="py-3 px-4 text-center text-yellow-600">{{ player_stats.draws }}</td>
               <td class="py-3 px-4 text-center text-red-600">{{ player_stats.losses }}</td>
               <td class="py-3 px-4 text-center">{{ player_stats.sets_won }}</td>
             </tr>
@@ -135,7 +137,7 @@
       </div>
       <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <p class="text-sm text-gray-600 mb-2"><span class="font-semibold">Punti:</span> 3 per ogni vittoria</p>
+          <p class="text-sm text-gray-600 mb-2"><span class="font-semibold">Punti:</span> 3 per ogni vittoria, 1 per ogni pareggio</p>
           <p class="text-sm text-gray-600"><span class="font-semibold">Posizione:</span> Ordinata per punti, vittorie, set vinti</p>
         </div>
         <div>
