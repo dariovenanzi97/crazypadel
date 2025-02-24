@@ -67,15 +67,20 @@ class League(models.Model):
             if matches_played == 0:
                 continue
                 
-            # Calcola vittorie, sconfitte e set vinti
+            # Calcola vittorie, pareggi, sconfitte e set vinti
             wins = 0
+            draws = 0
             sets_won = 0
-            
+
             for mp in player_matches:
                 match = mp.match
+                
+                # Determina se è un pareggio
+                if match.team1_sets == match.team2_sets:
+                    draws += 1
                 # Determina se il giocatore ha vinto
-                if (mp.team == 1 and match.team1_sets > match.team2_sets) or \
-                   (mp.team == 2 and match.team2_sets > match.team1_sets):
+                elif (mp.team == 1 and match.team1_sets > match.team2_sets) or \
+                    (mp.team == 2 and match.team2_sets > match.team1_sets):
                     wins += 1
                 
                 # Calcola set vinti
@@ -83,20 +88,21 @@ class League(models.Model):
                     sets_won += match.team1_sets
                 else:
                     sets_won += match.team2_sets
-            
-            losses = matches_played - wins
-            
-            # Calcola punti (3 per vittoria)
-            points = wins * 3
+
+            losses = matches_played - wins - draws
+
+            # Calcola punti (3 per vittoria, 1 per pareggio)
+            points = (wins * 3) + draws
             
             standings.append({
-                'player': player,
-                'matches_played': matches_played,
-                'wins': wins,
-                'losses': losses,
-                'sets_won': sets_won,
-                'points': points
-            })
+            'player': player,
+            'matches_played': matches_played,
+            'wins': wins,
+            'draws': draws,
+            'losses': losses,
+            'sets_won': sets_won,
+            'points': points
+        })
         
         # Ordina per punti, quindi premia chi ha giocato meno partite (rateo più alto), quindi vittorie, set vinti
         standings.sort(
