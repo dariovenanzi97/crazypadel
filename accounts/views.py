@@ -49,6 +49,7 @@ def profile(request):
     
     # Calcola vittorie
     wins_count = 0
+    draws_count = 0
     losses_count = 0
     sets_won = 0
     total_sets = 0
@@ -72,12 +73,20 @@ def profile(request):
                 wins_count += 1
             elif match.team1_sets < match.team2_sets:
                 losses_count += 1
+            elif match.team1_sets == match.team2_sets:
+                # Pareggio
+                draws_count = draws_count if 'draws_count' in locals() else 0
+                draws_count += 1
         else:
             sets_won += match.team2_sets
             if match.team2_sets > match.team1_sets:
                 wins_count += 1
             elif match.team2_sets < match.team1_sets:
                 losses_count += 1
+            elif match.team1_sets == match.team2_sets:
+                # Pareggio
+                draws_count = draws_count if 'draws_count' in locals() else 0
+                draws_count += 1
         
         # Analisi compagni di squadra
         teammates_in_match = match.players.filter(team=team).exclude(player=request.user)
@@ -205,6 +214,7 @@ def profile(request):
         'total_wins': wins_count,
         'total_losses': losses_count,
         'win_percentage': win_percentage,
+        'total_draws': draws_count,
         'set_win_percentage': set_win_percentage,
         'total_sets': total_sets,
         'sets_won': sets_won,

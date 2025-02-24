@@ -168,6 +168,10 @@ class Match(models.Model):
             return 2
         return None
 
+    @property
+    def is_draw(self):
+        """Restituisce True se la partita è terminata in pareggio"""
+        return self.team1_sets == self.team2_sets
 
 class MatchPlayer(models.Model):
     """Relazione tra giocatori e partite"""
