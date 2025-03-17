@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ league.name }} - CrazyPadel{% endblock %}
+{% block title %}{{ league.name }} - PADEL CREW{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
   <!-- Header -->
@@ -484,12 +484,12 @@
         setActiveTab(tabId);
         
         // Save selected tab to localStorage
-        localStorage.setItem('crazypadel_active_tab', tabId);
+        localStorage.setItem('PADEL CREW_active_tab', tabId);
       });
     });
 
     // Restore last selected tab from localStorage or use default
-    const lastActiveTab = localStorage.getItem('crazypadel_active_tab') || 'standings';
+    const lastActiveTab = localStorage.getItem('PADEL CREW_active_tab') || 'standings';
     setActiveTab(lastActiveTab);
   });
 </script>

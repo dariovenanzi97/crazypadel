@@ -1,0 +1,1 @@
+web: gunicorn crazypadel.wsgi --log-file -
