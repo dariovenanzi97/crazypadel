@@ -18,8 +18,46 @@
             <form method="post" class="space-y-6">
                 {% csrf_token %}
                 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700">Nome *</label>
+                        <div class="mt-1">
+                            <input type="text" name="first_name" id="id_first_name" required
+                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                        </div>
+                        {% if form.first_name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700">Cognome *</label>
+                        <div class="mt-1">
+                            <input type="text" name="last_name" id="id_last_name" required
+                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                        </div>
+                        {% if form.last_name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
                 <div>
-                    <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700">Email *</label>
+                    <div class="mt-1">
+                        <input type="email" name="email" id="id_email" autocomplete="email" required 
+                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.email.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.email.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-gray-700">Username *</label>
                     <div class="mt-1">
                         <input type="text" name="username" id="id_username" autocomplete="username" required 
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
@@ -32,26 +70,22 @@
                     {% endif %}
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="id_first_name" class="block text-sm font-medium text-gray-700">Nome (opzionale)</label>
-                        <div class="mt-1">
-                            <input type="text" name="first_name" id="id_first_name" 
-                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
-                        </div>
+                <div>
+                    <label for="id_date_of_birth" class="block text-sm font-medium text-gray-700">Data di nascita</label>
+                    <div class="mt-1">
+                        <input type="date" name="date_of_birth" id="id_date_of_birth" 
+                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
                     </div>
-                    
-                    <div>
-                        <label for="id_last_name" class="block text-sm font-medium text-gray-700">Cognome (opzionale)</label>
-                        <div class="mt-1">
-                            <input type="text" name="last_name" id="id_last_name" 
-                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
-                        </div>
-                    </div>
+                    {% if form.date_of_birth.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.date_of_birth.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.date_of_birth.help_text }}</p>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
+                    <label for="id_password1" class="block text-sm font-medium text-gray-700">Password *</label>
                     <div class="mt-1">
                         <input type="password" name="password1" id="id_password1" autocomplete="new-password" required 
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">
@@ -65,7 +99,7 @@
                 </div>
                 
                 <div>
-                    <label for="id_password2" class="block text-sm font-medium text-gray-700">Conferma Password</label>
+                    <label for="id_password2" class="block text-sm font-medium text-gray-700">Conferma Password *</label>
                     <div class="mt-1">
                         <input type="password" name="password2" id="id_password2" autocomplete="new-password" required 
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-crazy-blue focus:border-crazy-blue">

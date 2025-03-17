@@ -1,18 +1,20 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
 class User(AbstractUser):
     """
     Estensione del modello utente di Django.
-    Non richiediamo email, solo username e password.
+    Include nome, cognome, email, nickname e data di nascita.
     """
-    # Il campo email è opzionale
-    email = models.EmailField(blank=True, null=True)
+    # La email diventa obbligatoria
+    email = models.EmailField(unique=True, verbose_name='Email')
     
-    # Disabilita l'uso dell'email per validazione
-    EMAIL_FIELD = None
-    REQUIRED_FIELDS = []  # Rimuoviamo 'email' dalla lista dei campi richiesti
+    # Aggiungiamo il campo data di nascita
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name='Data di nascita')
+    
+    # Ripristiniamo l'uso dell'email per validazione
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     
     class Meta:
         verbose_name = 'Utente'
